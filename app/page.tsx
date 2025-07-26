@@ -57,7 +57,7 @@ export default function HomePage() {
           ¿Cómo empezar?
         </h3>
         <ol className="list-decimal list-inside space-y-2 text-blue-800">
-          <li>Haz clic en "Nuevo Recurso" para crear tu primer recurso</li>
+          <li>Haz clic en &quot;Nuevo Recurso&quot; para crear tu primer recurso</li>
           <li>Completa la información obligatoria del formulario</li>
           <li>Sube los archivos Word y/o PDF correspondientes</li>
           <li>Guarda y visualiza tu recurso en la lista</li>

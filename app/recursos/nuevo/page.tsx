@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { NuevoRecursoClient } from './NuevoRecursoClient'
 
 export const metadata: Metadata = {
   title: 'Nuevo Recurso - Admin Psicología',
@@ -15,12 +16,7 @@ export default function NuevoRecursoPage() {
         </p>
       </div>
       
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        {/* Aquí irá el formulario RecursoForm */}
-        <p className="text-gray-500 text-center py-8">
-          Formulario en construcción...
-        </p>
-      </div>
+      <NuevoRecursoClient />
     </div>
   )
 }

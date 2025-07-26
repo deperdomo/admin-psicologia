@@ -5,13 +5,10 @@ export const metadata: Metadata = {
   description: 'Editar recurso de psicología existente',
 }
 
-interface EditarRecursoPageProps {
-  params: {
-    id: string
-  }
-}
 
-export default function EditarRecursoPage({ params }: EditarRecursoPageProps) {
+
+
+export default function EditarRecursoPage({ params }: { params: { id: string } }) {
   return (
     <div className="space-y-6">
       <div className="border-b border-gray-200 pb-4">
