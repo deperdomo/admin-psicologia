@@ -1,3 +1,53 @@
+# 📋 Sistema de Administración de Recursos - Psicología
+
+Sistema web para gestionar y administrar recursos de psicología (PDFs y documentos Word) con integración a Supabase.
+
+## 🚀 Características
+
+- ✅ Interfaz moderna con Next.js 14+ y TypeScript
+- ✅ Diseño responsivo con Tailwind CSS
+- ✅ Componentes UI con shadcn/ui
+- ✅ Integración con Supabase (PostgreSQL + Storage)
+- ✅ Validación de formularios con Zod
+- ✅ Subida de archivos con validación
+- ✅ Gestión completa de recursos (CRUD)
+
+## 🛠️ Stack Tecnológico
+
+- **Frontend**: Next.js 14+ con App Router
+- **Lenguaje**: TypeScript
+- **Estilos**: Tailwind CSS
+- **Componentes**: shadcn/ui
+- **Base de Datos**: Supabase (PostgreSQL)
+- **Almacenamiento**: Supabase Storage
+- **Validación**: Zod + React Hook Form
+
+## 📦 Instalación
+
+1. Clona el repositorio
+2. Instala las dependencias:
+```bash
+npm install
+```
+
+3. Configura las variables de entorno:
+```bash
+cp .env.example .env.local
+```
+
+4. Actualiza las variables en `.env.local`:
+```env
+NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+```
+
+5. Ejecuta el proyecto:
+```bash
+npm run dev
+```
+
+## 🗂️ Estructura del Proyecto
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
