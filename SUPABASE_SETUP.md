@@ -106,19 +106,19 @@ CREATE TRIGGER update_recursos_updated_at
 
 1. Ve a Storage en el panel de Supabase
 2. Crea dos buckets:
-   - `word-files` (para documentos Word)
-   - `pdf-files` (para documentos PDF)
+   - `recursos-word` (para documentos Word)
+   - `recursos-pdf` (para documentos PDF)
 
 3. Configura políticas públicas para ambos buckets:
 
 ```sql
--- Política para word-files
-CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'word-files');
-CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'word-files');
+-- Política para recursos-word
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'recursos-word');
+CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'recursos-word');
 
--- Política para pdf-files  
-CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'pdf-files');
-CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'pdf-files');
+-- Política para recursos-pdf  
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'recursos-pdf');
+CREATE POLICY "Public Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'recursos-pdf');
 ```
 
 ## 5. Verificar Configuración

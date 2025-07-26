@@ -7,10 +7,13 @@ import { type AgeRange } from '@/types/database'
 interface AgeRangeSelectorProps {
   value: AgeRange[]
   onChange: (value: AgeRange[]) => void
+  disabled?: boolean
 }
 
-export function AgeRangeSelector({ value, onChange }: AgeRangeSelectorProps) {
+export function AgeRangeSelector({ value, onChange, disabled = false }: AgeRangeSelectorProps) {
   const handleToggle = (ageRange: AgeRange, checked: boolean) => {
+    if (disabled) return
+    
     if (checked) {
       onChange([...value, ageRange])
     } else {
@@ -28,10 +31,13 @@ export function AgeRangeSelector({ value, onChange }: AgeRangeSelectorProps) {
             onCheckedChange={(checked) => 
               handleToggle(ageRange as AgeRange, checked as boolean)
             }
+            disabled={disabled}
           />
           <label
             htmlFor={`age-${ageRange}`}
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            className={`text-sm font-medium leading-none cursor-pointer ${
+              disabled ? 'opacity-50 cursor-not-allowed' : 'peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+            }`}
           >
             {label}
           </label>

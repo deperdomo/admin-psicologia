@@ -1,10 +1,10 @@
 'use client'
 
-
 import { useCallback, useState } from 'react'
 import { useDropzone, FileRejection } from 'react-dropzone'
-import { Upload, File, X, AlertCircle } from 'lucide-react'
+import { Upload, File, X, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { formatFileSize } from '@/lib/utils'
 
 interface FileUploadProps {
@@ -13,6 +13,9 @@ interface FileUploadProps {
   onFileSelect: (file: File | undefined) => void
   currentFile?: File
   placeholder?: string
+  isUploading?: boolean
+  uploadProgress?: number
+  uploadError?: string | null
 }
 
 export function FileUpload({ 
@@ -20,7 +23,10 @@ export function FileUpload({
   maxSize, 
   onFileSelect, 
   currentFile, 
-  placeholder = "Arrastra un archivo aquí o haz clic para seleccionar" 
+  placeholder = "Arrastra un archivo aquí o haz clic para seleccionar",
+  isUploading = false,
+  uploadProgress = 0,
+  uploadError
 }: FileUploadProps) {
   const [error, setError] = useState<string>('')
 
@@ -51,13 +57,18 @@ export function FileUpload({
       return acc
     }, {} as Record<string, string[]>),
     maxSize,
-    multiple: false
+    multiple: false,
+    disabled: isUploading
   })
 
   const removeFile = () => {
-    onFileSelect(undefined)
-    setError('')
+    if (!isUploading) {
+      onFileSelect(undefined)
+      setError('')
+    }
   }
+
+  const displayError = error || uploadError
 
   return (
     <div className="space-y-2">
@@ -70,7 +81,8 @@ export function FileUpload({
               ? 'border-primary bg-primary/5' 
               : 'border-gray-300 hover:border-gray-400'
             }
-            ${error ? 'border-red-300 bg-red-50' : ''}
+            ${displayError ? 'border-red-300 bg-red-50' : ''}
+            ${isUploading ? 'cursor-not-allowed opacity-50' : ''}
           `}
         >
           <input {...getInputProps()} />
@@ -83,34 +95,55 @@ export function FileUpload({
           </p>
         </div>
       ) : (
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-          <div className="flex items-center space-x-2">
-            <File className="w-4 h-4 text-gray-500" />
-            <div>
-              <p className="text-sm font-medium text-gray-900">
-                {currentFile.name}
-              </p>
-              <p className="text-xs text-gray-500">
-                {formatFileSize(currentFile.size)}
-              </p>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+            <div className="flex items-center space-x-2">
+              <File className="w-4 h-4 text-gray-500" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  {currentFile.name}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {formatFileSize(currentFile.size)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              {isUploading ? (
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+              ) : uploadProgress === 100 ? (
+                <CheckCircle className="w-4 h-4 text-green-500" />
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={removeFile}
+                  className="text-gray-500 hover:text-red-500"
+                  disabled={isUploading}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={removeFile}
-            className="text-gray-500 hover:text-red-500"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+
+          {/* Progress Bar */}
+          {isUploading && (
+            <div className="space-y-1">
+              <Progress value={uploadProgress} className="w-full" />
+              <p className="text-xs text-gray-500 text-center">
+                Subiendo... {uploadProgress}%
+              </p>
+            </div>
+          )}
         </div>
       )}
 
-      {error && (
+      {displayError && (
         <div className="flex items-center space-x-2 text-red-600 text-sm">
           <AlertCircle className="w-4 h-4" />
-          <span>{error}</span>
+          <span>{displayError}</span>
         </div>
       )}
     </div>

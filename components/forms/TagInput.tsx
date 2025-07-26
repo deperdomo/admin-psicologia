@@ -9,22 +9,31 @@ interface TagInputProps {
   value: string[]
   onChange: (value: string[]) => void
   placeholder?: string
+  disabled?: boolean
 }
 
-export function TagInput({ value, onChange, placeholder = "Escribe y presiona Enter..." }: TagInputProps) {
+export function TagInput({ 
+  value, 
+  onChange, 
+  placeholder = "Escribe y presiona Enter...", 
+  disabled = false 
+}: TagInputProps) {
   const [inputValue, setInputValue] = useState('')
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (disabled) return
+    
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault()
       addTag()
     } else if (e.key === 'Backspace' && inputValue === '' && value.length > 0) {
-      // Eliminar el último tag si el input está vacío
       removeTag(value.length - 1)
     }
   }
 
   const addTag = () => {
+    if (disabled) return
+    
     const trimmedValue = inputValue.trim()
     if (trimmedValue && !value.includes(trimmedValue)) {
       onChange([...value, trimmedValue])
@@ -33,10 +42,13 @@ export function TagInput({ value, onChange, placeholder = "Escribe y presiona En
   }
 
   const removeTag = (index: number) => {
+    if (disabled) return
     onChange(value.filter((_, i) => i !== index))
   }
 
   const handlePaste = (e: React.ClipboardEvent) => {
+    if (disabled) return
+    
     e.preventDefault()
     const pastedText = e.clipboardData.getData('text')
     const tags = pastedText
@@ -54,11 +66,12 @@ export function TagInput({ value, onChange, placeholder = "Escribe y presiona En
     <div className="space-y-2">
       <Input
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={(e) => !disabled && setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
-        onBlur={addTag}
+        onBlur={() => !disabled && addTag()}
         placeholder={placeholder}
+        disabled={disabled}
       />
       
       {value.length > 0 && (
@@ -66,13 +79,15 @@ export function TagInput({ value, onChange, placeholder = "Escribe y presiona En
           {value.map((tag, index) => (
             <Badge key={index} variant="secondary" className="text-sm">
               {tag}
-              <button
-                type="button"
-                onClick={() => removeTag(index)}
-                className="ml-2 hover:text-destructive"
-              >
-                <X className="w-3 h-3" />
-              </button>
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={() => removeTag(index)}
+                  className="ml-2 hover:text-destructive"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </Badge>
           ))}
         </div>

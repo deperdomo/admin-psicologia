@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, Save, X } from 'lucide-react'
+import { Loader2, Save, X, AlertTriangle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 import { recursoSchema, type RecursoFormSchema, CATEGORIA_LABELS, RESOURCE_TYPE_LABELS, DIFFICULTY_LABELS } from '@/lib/validations'
 import { type Recurso } from '@/types/database'
@@ -18,15 +19,34 @@ import { AgeRangeSelector } from './AgeRangeSelector'
 import { TagInput } from './TagInput'
 import { FileUpload } from './FileUpload'
 
+import { useFileUpload } from '@/lib/hooks/useFileUpload'
+import { generateFileName } from '@/lib/utils'
+import { validateFile } from '@/lib/fileUpload'
+
+export interface FileUploadResult {
+  fileName: string;
+  filePath: string;
+  publicUrl: string;
+  fileSize: number;
+}
+
 interface RecursoFormProps {
   recurso?: Recurso
-  onSubmit: (data: RecursoFormSchema & { word_file?: File; pdf_file?: File }) => Promise<void>
+  onSubmit: (data: RecursoFormSchema & { 
+    word_file?: File; 
+    pdf_file?: File;
+    word_upload_result?: FileUploadResult;
+    pdf_upload_result?: FileUploadResult;
+  }) => Promise<void>
   onCancel?: () => void
   isLoading?: boolean
 }
 
 export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: RecursoFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string>('')
+  const [wordUploadResult, setWordUploadResult] = useState<FileUploadResult | null>(null)
+  const [pdfUploadResult, setPdfUploadResult] = useState<FileUploadResult | null>(null)
 
   const form = useForm<RecursoFormSchema & { word_file?: File; pdf_file?: File }>({
     resolver: zodResolver(recursoSchema),
@@ -45,16 +65,110 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
     },
   })
 
+  // Hooks para subida de archivos
+  const wordUpload = useFileUpload({
+    bucket: 'recursos-word',
+    onSuccess: (result) => setWordUploadResult(result),
+    onError: (error) => console.error('Word upload error:', error)
+  })
+
+  const pdfUpload = useFileUpload({
+    bucket: 'recursos-pdf',
+    onSuccess: (result) => setPdfUploadResult(result),
+    onError: (error) => console.error('PDF upload error:', error)
+  })
+
+  const handleWordFileSelect = async (file: File | undefined) => {
+    if (!file) {
+      form.setValue('word_file', undefined)
+      setWordUploadResult(null)
+      return
+    }
+
+    // Validar archivo
+    const validationError = validateFile(file)
+    if (validationError) {
+      return // El error se mostrará en el componente FileUpload
+    }
+
+    form.setValue('word_file', file)
+
+    // Subir archivo automáticamente si tenemos resource_id
+    const resourceId = form.getValues('resource_id')
+    if (resourceId) {
+      try {
+        const fileName = generateFileName(resourceId, file.name)
+        const path = `recursos-word/${fileName}`
+        await wordUpload.uploadFile(file, path)
+      } catch (error) {
+        console.error('Error uploading word file:', error)
+      }
+    }
+  }
+
+  const handlePdfFileSelect = async (file: File | undefined) => {
+    if (!file) {
+      form.setValue('pdf_file', undefined)
+      setPdfUploadResult(null)
+      return
+    }
+
+    // Validar archivo
+    const validationError = validateFile(file)
+    if (validationError) {
+      return // El error se mostrará en el componente FileUpload
+    }
+
+    form.setValue('pdf_file', file)
+
+    // Subir archivo automáticamente si tenemos resource_id
+    const resourceId = form.getValues('resource_id')
+    if (resourceId) {
+      try {
+        const fileName = generateFileName(resourceId, file.name)
+        const path = `recursos-pdf/${fileName}`
+        await pdfUpload.uploadFile(file, path)
+      } catch (error) {
+        console.error('Error uploading pdf file:', error)
+      }
+    }
+  }
+
   const handleSubmit = async (data: RecursoFormSchema & { word_file?: File; pdf_file?: File }) => {
     setIsSubmitting(true)
+    setSubmitError('')
+    
     try {
-      await onSubmit(data)
+      // Subir archivos si no se han subido aún
+      let finalWordResult = wordUploadResult
+      let finalPdfResult = pdfUploadResult
+
+      if (data.word_file && !wordUploadResult) {
+        const fileName = generateFileName(data.resource_id, data.word_file.name)
+        const path = `recursos-word/${fileName}`
+        finalWordResult = await wordUpload.uploadFile(data.word_file, path)
+      }
+
+      if (data.pdf_file && !pdfUploadResult) {
+        const fileName = generateFileName(data.resource_id, data.pdf_file.name)
+        const path = `recursos-pdf/${fileName}`
+        finalPdfResult = await pdfUpload.uploadFile(data.pdf_file, path)
+      }
+
+      await onSubmit({
+        ...data,
+        word_upload_result: finalWordResult ?? undefined,
+        pdf_upload_result: finalPdfResult ?? undefined
+      })
     } catch (error) {
       console.error('Error submitting form:', error)
+      setSubmitError(error instanceof Error ? error.message : 'Error al guardar el recurso')
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  const isFormLoading = isSubmitting || isLoading || wordUpload.isUploading || pdfUpload.isUploading
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -70,6 +184,13 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {submitError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{submitError}</AlertDescription>
+          </Alert>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             {/* Información Básica */}
@@ -84,7 +205,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       <Input 
                         placeholder="ej: carta-001" 
                         {...field}
-                        disabled={!!recurso} // No editable si es edición
+                        disabled={!!recurso || isFormLoading}
                       />
                     </FormControl>
                     <FormDescription>
@@ -105,6 +226,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       <Input 
                         placeholder="Título del recurso" 
                         {...field}
+                        disabled={isFormLoading}
                       />
                     </FormControl>
                     <FormDescription>
@@ -128,6 +250,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       placeholder="Descripción detallada del recurso..."
                       className="min-h-[100px]"
                       {...field}
+                      disabled={isFormLoading}
                     />
                   </FormControl>
                   <FormDescription>
@@ -146,7 +269,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoría *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFormLoading}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona una categoría" />
@@ -171,7 +294,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo de Recurso *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFormLoading}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona un tipo" />
@@ -196,7 +319,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Dificultad *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFormLoading}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona dificultad" />
@@ -227,6 +350,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                     <AgeRangeSelector
                       value={field.value}
                       onChange={field.onChange}
+                      disabled={isFormLoading}
                     />
                   </FormControl>
                   <FormDescription>
@@ -249,6 +373,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       value={field.value || []}
                       onChange={field.onChange}
                       placeholder="Agrega etiquetas separadas por comas..."
+                      disabled={isFormLoading}
                     />
                   </FormControl>
                   <FormDescription>
@@ -274,6 +399,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                         placeholder="0"
                         {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        disabled={isFormLoading}
                       />
                     </FormControl>
                     <FormDescription>
@@ -293,6 +419,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isFormLoading}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -316,6 +443,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isFormLoading}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -344,10 +472,13 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       <FormControl>
                         <FileUpload
                           accept=".doc,.docx"
-                          maxSize={5 * 1024 * 1024} // 5MB
-                          onFileSelect={field.onChange}
+                          maxSize={5 * 1024 * 1024}
+                          onFileSelect={handleWordFileSelect}
                           currentFile={field.value}
                           placeholder="Arrastra un archivo Word aquí o haz clic para seleccionar"
+                          isUploading={wordUpload.isUploading}
+                          uploadProgress={wordUpload.progress}
+                          uploadError={wordUpload.error ?? undefined}
                         />
                       </FormControl>
                       <FormDescription>
@@ -367,10 +498,13 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                       <FormControl>
                         <FileUpload
                           accept=".pdf"
-                          maxSize={5 * 1024 * 1024} // 5MB
-                          onFileSelect={field.onChange}
+                          maxSize={5 * 1024 * 1024}
+                          onFileSelect={handlePdfFileSelect}
                           currentFile={field.value}
                           placeholder="Arrastra un archivo PDF aquí o haz clic para seleccionar"
+                          isUploading={pdfUpload.isUploading}
+                          uploadProgress={pdfUpload.progress}
+                          uploadError={pdfUpload.error ?? undefined}
                         />
                       </FormControl>
                       <FormDescription>
@@ -390,7 +524,7 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                   type="button"
                   variant="outline"
                   onClick={onCancel}
-                  disabled={isSubmitting || isLoading}
+                  disabled={isFormLoading}
                 >
                   <X className="w-4 h-4 mr-2" />
                   Cancelar
@@ -398,13 +532,13 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
               )}
               <Button
                 type="submit"
-                disabled={isSubmitting || isLoading}
+                disabled={isFormLoading}
                 className="min-w-[120px]"
               >
-                {isSubmitting || isLoading ? (
+                {isFormLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Guardando...
+                    {wordUpload.isUploading || pdfUpload.isUploading ? 'Subiendo...' : 'Guardando...'}
                   </>
                 ) : (
                   <>
