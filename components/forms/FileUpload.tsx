@@ -16,6 +16,7 @@ interface FileUploadProps {
   isUploading?: boolean
   uploadProgress?: number
   uploadError?: string | null
+  disabled?: boolean
 }
 
 export function FileUpload({ 
@@ -149,3 +150,5 @@ export function FileUpload({
     </div>
   )
 }
+
+export default FileUpload

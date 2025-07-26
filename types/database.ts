@@ -4,44 +4,41 @@ export type DifficultyLevel = 'basico' | 'intermedio' | 'avanzado'
 export type CategoriaPrincipal = 'cartas_que_curan' | 'colecciones_ayuda' | 'cuentos_terapeuticos' | 'fichas_psicoeducativas' | 'guias_padres' | 'recomendaciones_libros'
 
 export interface Recurso {
-  id?: string
+  id: string
   resource_id: string
   title: string
   description?: string
   categoria: CategoriaPrincipal
   resource_type: ResourceType
   age_ranges: AgeRange[]
-  difficulty: DifficultyLevel
   tags?: string[]
-  word_file_name?: string
-  pdf_file_name?: string
-  word_storage_path?: string
-  pdf_storage_path?: string
-  word_public_url?: string
-  pdf_public_url?: string
+  word_file_url?: string
+  pdf_file_url?: string
   is_premium?: boolean
-  is_active?: boolean
-  file_size_word?: number
-  file_size_pdf?: number
-  estimated_reading_time?: number
-  download_count?: number
-  view_count?: number
-  created_at?: string
+  requires_supervision?: boolean
+  estimated_duration?: number
+  difficulty_level?: DifficultyLevel
+  created_at: string
   updated_at?: string
 }
 
 export interface RecursoFormData {
   resource_id: string
   title: string
-  description: string
+  description?: string
   categoria: CategoriaPrincipal
   resource_type: ResourceType
   age_ranges: AgeRange[]
-  difficulty: DifficultyLevel
-  tags: string[]
-  estimated_reading_time: number
-  is_premium: boolean
-  is_active: boolean
-  word_file?: File
-  pdf_file?: File
+  tags?: string[]
+  is_premium?: boolean
+  requires_supervision?: boolean
+  estimated_duration?: number
+  difficulty_level?: DifficultyLevel
+  word_file_url?: string
+  pdf_file_url?: string
+}
+
+export interface RecursoWithFiles extends Recurso {
+  word_file_url?: string
+  pdf_file_url?: string
 }

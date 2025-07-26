@@ -99,14 +99,6 @@ export async function getFileMetadata(bucket: string, path: string) {
   }
 }
 
-// Función para convertir Word a PDF (placeholder para futura implementación)
-export async function convertWordToPdf(wordFile: File): Promise<File> {
-  // TODO: Implementar conversión Word a PDF
-  // Por ahora, retornamos el archivo original
-  console.log('Conversión Word a PDF no implementada aún')
-  throw new Error('Conversión Word a PDF no disponible')
-}
-
 // Función para validar archivos antes de subir
 export function validateFile(file: File, maxSize: number = 5 * 1024 * 1024): string | null {
   if (file.size > maxSize) {

@@ -3,11 +3,12 @@
 import { useState, useCallback } from 'react'
 import { uploadFile, deleteFile } from '@/lib/fileUpload'
 
-import type { FileUploadResult } from '@/components/forms/RecursoForm';
+import type { UploadResult } from '@/lib/fileUpload';
+
 
 interface UseFileUploadOptions {
   bucket: string
-  onSuccess?: (result: FileUploadResult) => void
+  onSuccess?: (result: UploadResult) => void
   onError?: (error: string) => void
 }
 
@@ -15,7 +16,7 @@ interface UploadState {
   isUploading: boolean
   progress: number
   error: string | null
-  result: FileUploadResult | null
+  result: UploadResult | null
 }
 
 export function useFileUpload({ bucket, onSuccess, onError }: UseFileUploadOptions) {

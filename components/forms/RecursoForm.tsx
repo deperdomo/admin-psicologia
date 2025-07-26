@@ -1,216 +1,87 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Save, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, Save, X, AlertTriangle } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-
-import { recursoSchema, type RecursoFormSchema, CATEGORIA_LABELS, RESOURCE_TYPE_LABELS, DIFFICULTY_LABELS } from '@/lib/validations'
-import { type Recurso } from '@/types/database'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { AgeRangeSelector } from './AgeRangeSelector'
 import { TagInput } from './TagInput'
 import { FileUpload } from './FileUpload'
-
-import { useFileUpload } from '@/lib/hooks/useFileUpload'
-import { generateFileName } from '@/lib/utils'
-import { validateFile } from '@/lib/fileUpload'
-
-export interface FileUploadResult {
-  fileName: string;
-  filePath: string;
-  publicUrl: string;
-  fileSize: number;
-}
+import { recursoSchema, CATEGORIA_LABELS, RESOURCE_TYPE_LABELS, DIFFICULTY_LABELS } from '@/lib/validations'
+import type { RecursoFormData } from '@/types/database'
 
 interface RecursoFormProps {
-  recurso?: Recurso
-  onSubmit: (data: RecursoFormSchema & { 
-    word_file?: File; 
-    pdf_file?: File;
-    word_upload_result?: FileUploadResult;
-    pdf_upload_result?: FileUploadResult;
-  }) => Promise<void>
-  onCancel?: () => void
-  isLoading?: boolean
+  initialData?: Partial<RecursoFormData>
+  onSubmit: (data: RecursoFormData, wordFile?: File, pdfFile?: File) => Promise<void>
+  submitLabel?: string
+  disabled?: boolean
+  isEditing?: boolean
 }
 
-export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: RecursoFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string>('')
-  const [wordUploadResult, setWordUploadResult] = useState<FileUploadResult | null>(null)
-  const [pdfUploadResult, setPdfUploadResult] = useState<FileUploadResult | null>(null)
+export default function RecursoForm({ 
+  initialData, 
+  onSubmit, 
+  submitLabel = 'Crear Recurso',
+  disabled = false,
+  isEditing = false
+}: RecursoFormProps) {
+  const [wordFile, setWordFile] = useState<File | undefined>()
+  const [pdfFile, setPdfFile] = useState<File | undefined>()
 
-  const form = useForm<RecursoFormSchema & { word_file?: File; pdf_file?: File }>({
+  const form = useForm<RecursoFormData>({
     resolver: zodResolver(recursoSchema),
     defaultValues: {
-      resource_id: recurso?.resource_id || '',
-      title: recurso?.title || '',
-      description: recurso?.description || '',
-      categoria: recurso?.categoria,
-      resource_type: recurso?.resource_type,
-      age_ranges: recurso?.age_ranges || [],
-      difficulty: recurso?.difficulty,
-      tags: recurso?.tags || [],
-      estimated_reading_time: recurso?.estimated_reading_time || 0,
-      is_premium: recurso?.is_premium || false,
-      is_active: recurso?.is_active ?? true,
-    },
+      resource_id: initialData?.resource_id || '',
+      title: initialData?.title || '',
+      description: initialData?.description || '',
+      categoria: initialData?.categoria,
+      resource_type: initialData?.resource_type,
+      age_ranges: initialData?.age_ranges || [],
+      tags: initialData?.tags || [],
+      is_premium: initialData?.is_premium || false,
+      requires_supervision: initialData?.requires_supervision || false,
+      estimated_duration: initialData?.estimated_duration,
+      difficulty_level: initialData?.difficulty_level,
+      word_file_url: initialData?.word_file_url,
+      pdf_file_url: initialData?.pdf_file_url,
+    }
   })
 
-  // Hooks para subida de archivos
-  const wordUpload = useFileUpload({
-    bucket: 'recursos-word',
-    onSuccess: (result) => setWordUploadResult(result),
-    onError: (error) => console.error('Word upload error:', error)
-  })
-
-  const pdfUpload = useFileUpload({
-    bucket: 'recursos-pdf',
-    onSuccess: (result) => setPdfUploadResult(result),
-    onError: (error) => console.error('PDF upload error:', error)
-  })
-
-  const handleWordFileSelect = async (file: File | undefined) => {
-    if (!file) {
-      form.setValue('word_file', undefined)
-      setWordUploadResult(null)
-      return
-    }
-
-    // Validar archivo
-    const validationError = validateFile(file)
-    if (validationError) {
-      return // El error se mostrará en el componente FileUpload
-    }
-
-    form.setValue('word_file', file)
-
-    // Subir archivo automáticamente si tenemos resource_id
-    const resourceId = form.getValues('resource_id')
-    if (resourceId) {
-      try {
-        const fileName = generateFileName(resourceId, file.name)
-        const path = `recursos-word/${fileName}`
-        await wordUpload.uploadFile(file, path)
-      } catch (error) {
-        console.error('Error uploading word file:', error)
-      }
-    }
+  const handleSubmit = async (data: RecursoFormData) => {
+    await onSubmit(data, wordFile, pdfFile)
   }
-
-  const handlePdfFileSelect = async (file: File | undefined) => {
-    if (!file) {
-      form.setValue('pdf_file', undefined)
-      setPdfUploadResult(null)
-      return
-    }
-
-    // Validar archivo
-    const validationError = validateFile(file)
-    if (validationError) {
-      return // El error se mostrará en el componente FileUpload
-    }
-
-    form.setValue('pdf_file', file)
-
-    // Subir archivo automáticamente si tenemos resource_id
-    const resourceId = form.getValues('resource_id')
-    if (resourceId) {
-      try {
-        const fileName = generateFileName(resourceId, file.name)
-        const path = `recursos-pdf/${fileName}`
-        await pdfUpload.uploadFile(file, path)
-      } catch (error) {
-        console.error('Error uploading pdf file:', error)
-      }
-    }
-  }
-
-  const handleSubmit = async (data: RecursoFormSchema & { word_file?: File; pdf_file?: File }) => {
-    setIsSubmitting(true)
-    setSubmitError('')
-    
-    try {
-      // Subir archivos si no se han subido aún
-      let finalWordResult = wordUploadResult
-      let finalPdfResult = pdfUploadResult
-
-      if (data.word_file && !wordUploadResult) {
-        const fileName = generateFileName(data.resource_id, data.word_file.name)
-        const path = `recursos-word/${fileName}`
-        finalWordResult = await wordUpload.uploadFile(data.word_file, path)
-      }
-
-      if (data.pdf_file && !pdfUploadResult) {
-        const fileName = generateFileName(data.resource_id, data.pdf_file.name)
-        const path = `recursos-pdf/${fileName}`
-        finalPdfResult = await pdfUpload.uploadFile(data.pdf_file, path)
-      }
-
-      await onSubmit({
-        ...data,
-        word_upload_result: finalWordResult ?? undefined,
-        pdf_upload_result: finalPdfResult ?? undefined
-      })
-    } catch (error) {
-      console.error('Error submitting form:', error)
-      setSubmitError(error instanceof Error ? error.message : 'Error al guardar el recurso')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const isFormLoading = isSubmitting || isLoading || wordUpload.isUploading || pdfUpload.isUploading
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>
-          {recurso ? 'Editar Recurso' : 'Crear Nuevo Recurso'}
-        </CardTitle>
-        <CardDescription>
-          {recurso 
-            ? 'Modifica la información del recurso existente'
-            : 'Completa la información para crear un nuevo recurso de psicología'
-          }
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {submitError && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{submitError}</AlertDescription>
-          </Alert>
-        )}
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            {/* Información Básica */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* Información Básica */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Información Básica</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="resource_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Resource ID *</FormLabel>
+                    <FormLabel>ID del Recurso *</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="ej: carta-001" 
-                        {...field}
-                        disabled={!!recurso || isFormLoading}
+                        placeholder="ej: REC001" 
+                        {...field} 
+                        disabled={disabled}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Identificador único del recurso (máximo 100 caracteres)
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -225,20 +96,16 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                     <FormControl>
                       <Input 
                         placeholder="Título del recurso" 
-                        {...field}
-                        disabled={isFormLoading}
+                        {...field} 
+                        disabled={disabled}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Nombre descriptivo del recurso (máximo 255 caracteres)
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            {/* Descripción */}
             <FormField
               control={form.control}
               name="description"
@@ -249,30 +116,38 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                     <Textarea 
                       placeholder="Descripción detallada del recurso..."
                       className="min-h-[100px]"
-                      {...field}
-                      disabled={isFormLoading}
+                      {...field} 
+                      disabled={disabled}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Descripción opcional del contenido y propósito del recurso
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </CardContent>
+        </Card>
 
-            {/* Categorización */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Categorización */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Categorización</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="categoria"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoría *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFormLoading}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                      disabled={disabled}
+                    >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona una categoría" />
+                          <SelectValue placeholder="Seleccionar categoría" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -294,10 +169,14 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo de Recurso *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFormLoading}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                      disabled={disabled}
+                    >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un tipo" />
+                          <SelectValue placeholder="Seleccionar tipo" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -312,17 +191,43 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                   </FormItem>
                 )}
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="estimated_duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duración Estimada (minutos)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="ej: 30"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
-                name="difficulty"
+                name="difficulty_level"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dificultad *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isFormLoading}>
+                    <FormLabel>Nivel de Dificultad</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                      disabled={disabled}
+                    >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona dificultad" />
+                          <SelectValue placeholder="Seleccionar nivel" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -338,219 +243,179 @@ export function RecursoForm({ recurso, onSubmit, onCancel, isLoading = false }: 
                 )}
               />
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Rangos de Edad */}
+        {/* Rangos de Edad */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Rangos de Edad</CardTitle>
+          </CardHeader>
+          <CardContent>
             <FormField
               control={form.control}
               name="age_ranges"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rangos de Edad *</FormLabel>
                   <FormControl>
                     <AgeRangeSelector
                       value={field.value}
                       onChange={field.onChange}
-                      disabled={isFormLoading}
+                      disabled={disabled}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Selecciona uno o más rangos de edad apropiados para este recurso
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </CardContent>
+        </Card>
 
-            {/* Tags */}
+        {/* Etiquetas */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Etiquetas</CardTitle>
+          </CardHeader>
+          <CardContent>
             <FormField
               control={form.control}
               name="tags"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Etiquetas</FormLabel>
                   <FormControl>
                     <TagInput
                       value={field.value || []}
                       onChange={field.onChange}
-                      placeholder="Agrega etiquetas separadas por comas..."
-                      disabled={isFormLoading}
+                      disabled={disabled}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Etiquetas para facilitar la búsqueda y organización
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </CardContent>
+        </Card>
 
-            {/* Configuración Adicional */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <FormField
-                control={form.control}
-                name="estimated_reading_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tiempo de Lectura (minutos)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        disabled={isFormLoading}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Tiempo estimado de lectura en minutos
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        {/* Configuración Adicional */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Configuración Adicional</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="is_premium"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={disabled}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Recurso Premium</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Marcar si este recurso requiere suscripción premium
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="is_premium"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={isFormLoading}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Contenido Premium
-                      </FormLabel>
-                      <FormDescription>
-                        Marcar si es contenido de pago
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="requires_supervision"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={disabled}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Requiere Supervisión</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Marcar si este recurso debe ser usado bajo supervisión profesional
+                    </p>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={isFormLoading}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Recurso Activo
-                      </FormLabel>
-                      <FormDescription>
-                        Recurso visible y disponible
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Subida de Archivos */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Archivos</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="word_file"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Archivo Word</FormLabel>
-                      <FormControl>
-                        <FileUpload
-                          accept=".doc,.docx"
-                          maxSize={5 * 1024 * 1024}
-                          onFileSelect={handleWordFileSelect}
-                          currentFile={field.value}
-                          placeholder="Arrastra un archivo Word aquí o haz clic para seleccionar"
-                          isUploading={wordUpload.isUploading}
-                          uploadProgress={wordUpload.progress}
-                          uploadError={wordUpload.error ?? undefined}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Archivo Word opcional (máximo 5MB)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
+        {/* Archivos */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Archivos del Recurso
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isEditing && (initialData?.word_file_url || initialData?.pdf_file_url) && (
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 className="font-medium text-blue-900 mb-2">Archivos Actuales:</h4>
+                <div className="space-y-1 text-sm text-blue-800">
+                  {initialData.word_file_url && (
+                    <div>✓ Documento Word disponible</div>
                   )}
+                  {initialData.pdf_file_url && (
+                    <div>✓ Documento PDF disponible</div>
+                  )}
+                </div>
+                <p className="text-xs text-blue-600 mt-2">
+                  Subir nuevos archivos reemplazará los existentes
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="word-file">Archivo Word (.docx)</Label>
+                <FileUpload
+                  accept=".docx"
+                  onFileSelect={setWordFile}
+                  disabled={disabled}
+                  maxSize={10 * 1024 * 1024} // 10MB
                 />
+              </div>
 
-                <FormField
-                  control={form.control}
-                  name="pdf_file"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Archivo PDF</FormLabel>
-                      <FormControl>
-                        <FileUpload
-                          accept=".pdf"
-                          maxSize={5 * 1024 * 1024}
-                          onFileSelect={handlePdfFileSelect}
-                          currentFile={field.value}
-                          placeholder="Arrastra un archivo PDF aquí o haz clic para seleccionar"
-                          isUploading={pdfUpload.isUploading}
-                          uploadProgress={pdfUpload.progress}
-                          uploadError={pdfUpload.error ?? undefined}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Archivo PDF opcional (máximo 5MB)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+              <div>
+                <Label htmlFor="pdf-file">Archivo PDF (.pdf)</Label>
+                <FileUpload
+                  accept=".pdf"
+                  onFileSelect={setPdfFile}
+                  disabled={disabled}
+                  maxSize={10 * 1024 * 1024} // 10MB
                 />
               </div>
             </div>
 
-            {/* Botones de Acción */}
-            <div className="flex justify-end space-x-4 pt-6 border-t">
-              {onCancel && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onCancel}
-                  disabled={isFormLoading}
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancelar
-                </Button>
-              )}
-              <Button
-                type="submit"
-                disabled={isFormLoading}
-                className="min-w-[120px]"
-              >
-                {isFormLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {wordUpload.isUploading || pdfUpload.isUploading ? 'Subiendo...' : 'Guardando...'}
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    {recurso ? 'Actualizar' : 'Crear'} Recurso
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+            {!isEditing && (
+              <p className="text-sm text-gray-600">
+                * Al menos uno de los archivos es requerido para crear el recurso
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Botón de envío */}
+        <div className="flex justify-end">
+          <Button 
+            type="submit" 
+            disabled={disabled}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {submitLabel}
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 }

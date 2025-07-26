@@ -11,7 +11,10 @@ export const recursoSchema = z.object({
     'fichas_psicoeducativas',
     'guias_padres',
     'recomendaciones_libros',
-  ]),
+  ], {
+    required_error: "Categoría es requerida",
+    invalid_type_error: "Categoría no válida"
+  }),
   resource_type: z.enum([
     'carta',
     'guia',
@@ -19,17 +22,21 @@ export const recursoSchema = z.object({
     'ficha',
     'libro',
     'actividad',
-  ]),
+  ], {
+    required_error: "Tipo de recurso es requerido",
+    invalid_type_error: "Tipo de recurso no válido"
+  }),
   age_ranges: z.array(z.enum(['0-3', '3-6', '6-12', '12+', 'todas'])).min(1, "Selecciona al menos un rango de edad"),
-  difficulty: z.enum([
-    'basico',
-    'intermedio',
-    'avanzado',
-  ]),
   tags: z.array(z.string()).optional(),
-  estimated_reading_time: z.number().min(0, "El tiempo de lectura debe ser positivo").optional(),
-  is_premium: z.boolean().default(false),
-  is_active: z.boolean().default(true),
+  is_premium: z.boolean().optional().default(false),
+  requires_supervision: z.boolean().optional().default(false),
+  estimated_duration: z.number().min(0, "El tiempo debe ser positivo").optional(),
+  difficulty_level: z.enum(['basico', 'intermedio', 'avanzado'], {
+    required_error: "Nivel de dificultad es requerido",
+    invalid_type_error: "Nivel de dificultad no válido"
+  }).optional(),
+  word_file_url: z.string().optional(),
+  pdf_file_url: z.string().optional(),
 })
 
 export type RecursoFormSchema = z.infer<typeof recursoSchema>

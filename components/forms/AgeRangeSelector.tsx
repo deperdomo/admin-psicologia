@@ -46,3 +46,5 @@ export function AgeRangeSelector({ value, onChange, disabled = false }: AgeRange
     </div>
   )
 }
+
+export default AgeRangeSelector
