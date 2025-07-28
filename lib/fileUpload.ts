@@ -60,7 +60,11 @@ export async function uploadFile(
     // 2. Verificar sesión
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     console.log('✓ Session valid:', !!session);
-    console.log('  - Session expires at:', new Date(session?.expires_at! * 1000));
+    if (session?.expires_at) {
+      console.log('  - Session expires at:', new Date(session.expires_at * 1000));
+    } else {
+      console.log('  - Session expires at: unknown');
+    }
     
     if (sessionError) {
       console.error('❌ Session error:', sessionError);
@@ -68,10 +72,9 @@ export async function uploadFile(
     
     // 3. Test de acceso al bucket
     console.log('🧪 Testing bucket access...');
-    const { data: listData, error: listError } = await supabase.storage
+    const { error: listError } = await supabase.storage
       .from(bucket)
       .list('', { limit: 1 });
-    
     if (listError) {
       console.error('❌ Cannot access bucket:', listError);
     } else {
@@ -80,11 +83,10 @@ export async function uploadFile(
     
     // 4. Verificar permisos específicos del usuario
     console.log('🧪 Testing auth functions...');
-    const { data: testQuery, error: testError } = await supabase
+    const { error: testError } = await supabase
       .from('storage.objects')
       .select('*')
       .limit(1);
-    
     if (testError) {
       console.log('⚠️  Cannot query storage.objects directly:', testError.message);
     }

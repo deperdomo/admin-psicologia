@@ -77,7 +77,7 @@ export function EditarRecursoClient({ id }: EditarRecursoClientProps) {
       
       // Redirigir después de un breve delay
       setTimeout(() => {
-        router.push('/admin/recursos/lista')
+        router.push('/recursos/lista')
       }, 2000)
       
     } catch (err) {
@@ -106,7 +106,7 @@ export function EditarRecursoClient({ id }: EditarRecursoClientProps) {
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
-            onClick={() => router.push('/admin/recursos/lista')}
+            onClick={() => router.push('/recursos/lista')}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -183,7 +183,6 @@ export function EditarRecursoClient({ id }: EditarRecursoClientProps) {
               age_ranges: recurso.age_ranges || [],
               tags: recurso.tags || [],
               is_premium: recurso.is_premium || false,
-              requires_supervision: recurso.requires_supervision || false,
               estimated_reading_time: recurso.estimated_reading_time || undefined,
               difficulty_level: recurso.difficulty_level || undefined,
               word_public_url : recurso.word_public_url  || undefined,
