@@ -47,11 +47,11 @@ export default function RecursoForm({
       age_ranges: initialData?.age_ranges || [],
       tags: initialData?.tags || [],
       is_premium: initialData?.is_premium || false,
-      requires_supervision: initialData?.requires_supervision || false,
-      estimated_duration: initialData?.estimated_duration,
+      // REMOVIDO: requires_supervision ya que no existe en el esquema
+      estimated_reading_time: initialData?.estimated_reading_time,
       difficulty_level: initialData?.difficulty_level,
-      word_file_url: initialData?.word_file_url,
-      pdf_file_url: initialData?.pdf_file_url,
+      word_public_url: initialData?.word_public_url,
+      pdf_public_url: initialData?.pdf_public_url,
     }
   })
 
@@ -196,7 +196,7 @@ export default function RecursoForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="estimated_duration"
+                name="estimated_reading_time"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Duración Estimada (minutos)</FormLabel>
@@ -324,27 +324,7 @@ export default function RecursoForm({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="requires_supervision"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      disabled={disabled}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Requiere Supervisión</FormLabel>
-                    <p className="text-sm text-muted-foreground">
-                      Marcar si este recurso debe ser usado bajo supervisión profesional
-                    </p>
-                  </div>
-                </FormItem>
-              )}
-            />
+            {/* REMOVIDO: Campo requires_supervision ya que no existe en el esquema de la BD */}
           </CardContent>
         </Card>
 
@@ -357,14 +337,14 @@ export default function RecursoForm({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isEditing && (initialData?.word_file_url || initialData?.pdf_file_url) && (
+            {isEditing && (initialData?.word_public_url || initialData?.pdf_public_url) && (
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <h4 className="font-medium text-blue-900 mb-2">Archivos Actuales:</h4>
                 <div className="space-y-1 text-sm text-blue-800">
-                  {initialData.word_file_url && (
+                  {initialData.word_public_url && (
                     <div>✓ Documento Word disponible</div>
                   )}
-                  {initialData.pdf_file_url && (
+                  {initialData.pdf_public_url && (
                     <div>✓ Documento PDF disponible</div>
                   )}
                 </div>
@@ -380,6 +360,7 @@ export default function RecursoForm({
                 <FileUpload
                   accept=".docx"
                   onFileSelect={setWordFile}
+                  currentFile={wordFile}
                   disabled={disabled}
                   maxSize={10 * 1024 * 1024} // 10MB
                 />
@@ -390,6 +371,7 @@ export default function RecursoForm({
                 <FileUpload
                   accept=".pdf"
                   onFileSelect={setPdfFile}
+                  currentFile={pdfFile}
                   disabled={disabled}
                   maxSize={10 * 1024 * 1024} // 10MB
                 />

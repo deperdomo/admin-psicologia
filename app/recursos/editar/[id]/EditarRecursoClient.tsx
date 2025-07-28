@@ -77,7 +77,7 @@ export function EditarRecursoClient({ id }: EditarRecursoClientProps) {
       
       // Redirigir después de un breve delay
       setTimeout(() => {
-        router.push('/recursos/lista')
+        router.push('/admin/recursos/lista')
       }, 2000)
       
     } catch (err) {
@@ -106,7 +106,7 @@ export function EditarRecursoClient({ id }: EditarRecursoClientProps) {
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
-            onClick={() => router.push('/recursos/lista')}
+            onClick={() => router.push('/admin/recursos/lista')}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -184,10 +184,10 @@ export function EditarRecursoClient({ id }: EditarRecursoClientProps) {
               tags: recurso.tags || [],
               is_premium: recurso.is_premium || false,
               requires_supervision: recurso.requires_supervision || false,
-              estimated_duration: recurso.estimated_duration || undefined,
+              estimated_reading_time: recurso.estimated_reading_time || undefined,
               difficulty_level: recurso.difficulty_level || undefined,
-              word_file_url: recurso.word_file_url || undefined,
-              pdf_file_url: recurso.pdf_file_url || undefined
+              word_public_url : recurso.word_public_url  || undefined,
+              pdf_public_url: recurso.pdf_public_url || undefined
             }}
             onSubmit={handleSubmit}
             submitLabel={saving ? 'Guardando...' : 'Guardar Cambios'}

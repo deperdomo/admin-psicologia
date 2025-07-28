@@ -99,21 +99,21 @@ export default function ListaRecursosClient() {
   // Manejar descarga
   const handleDownload = async (recurso: Recurso) => {
     try {
-      if (recurso.word_file_url) {
+      if (recurso.word_public_url ) {
         await downloadFile(
-          recurso.word_file_url, 
+          recurso.word_public_url , 
           `${recurso.resource_id}_documento.docx`
         )
       }
       
-      if (recurso.pdf_file_url) {
+      if (recurso.pdf_public_url) {
         await downloadFile(
-          recurso.pdf_file_url, 
+          recurso.pdf_public_url, 
           `${recurso.resource_id}_documento.pdf`
         )
       }
       
-      if (!recurso.word_file_url && !recurso.pdf_file_url) {
+      if (!recurso.word_public_url  && !recurso.pdf_public_url) {
         setError('No hay archivos disponibles para descargar')
       }
     } catch (err) {
@@ -143,7 +143,7 @@ export default function ListaRecursosClient() {
           </p>
         </div>
         <Button 
-          onClick={() => router.push('/recursos/nuevo')}
+  onClick={() => router.push('/recursos/nuevo')}
           className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />

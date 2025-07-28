@@ -30,13 +30,13 @@ export const recursoSchema = z.object({
   tags: z.array(z.string()).optional(),
   is_premium: z.boolean().optional().default(false),
   requires_supervision: z.boolean().optional().default(false),
-  estimated_duration: z.number().min(0, "El tiempo debe ser positivo").optional(),
+  estimated_reading_time: z.number().min(0, "El tiempo debe ser positivo").optional(),
   difficulty_level: z.enum(['basico', 'intermedio', 'avanzado'], {
     required_error: "Nivel de dificultad es requerido",
     invalid_type_error: "Nivel de dificultad no válido"
   }).optional(),
-  word_file_url: z.string().optional(),
-  pdf_file_url: z.string().optional(),
+  word_public_url : z.string().optional(),
+  pdf_public_url: z.string().optional(),
 })
 
 export type RecursoFormSchema = z.infer<typeof recursoSchema>

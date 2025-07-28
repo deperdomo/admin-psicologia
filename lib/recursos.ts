@@ -44,8 +44,8 @@ export async function updateRecurso(
 ): Promise<Recurso> {
   try {
     // Subir archivos si se proporcionan
-    let wordFileUrl = data.word_file_url
-    let pdfFileUrl = data.pdf_file_url
+    let wordFileUrl = data.word_public_url 
+    let pdfFileUrl = data.pdf_public_url
 
     if (wordFile) {
       const wordFileName = `${data.resource_id || id}_word_${Date.now()}.docx`
@@ -80,8 +80,8 @@ export async function updateRecurso(
     // Actualizar el recurso en la base de datos
     const updateData = {
       ...data,
-      word_file_url: wordFileUrl,
-      pdf_file_url: pdfFileUrl,
+      word_public_url : wordFileUrl,
+      pdf_public_url: pdfFileUrl,
       updated_at: new Date().toISOString()
     }
 
@@ -114,13 +114,13 @@ export async function deleteRecurso(id: string): Promise<void> {
       // Eliminar archivos del storage
       const filesToDelete: string[] = []
       
-      if (recurso.word_file_url) {
-        const wordPath = recurso.word_file_url.split('/').pop()
+      if (recurso.word_public_url ) {
+        const wordPath = recurso.word_public_url .split('/').pop()
         if (wordPath) filesToDelete.push(`word/${wordPath}`)
       }
       
-      if (recurso.pdf_file_url) {
-        const pdfPath = recurso.pdf_file_url.split('/').pop()
+      if (recurso.pdf_public_url) {
+        const pdfPath = recurso.pdf_public_url.split('/').pop()
         if (pdfPath) filesToDelete.push(`pdf/${pdfPath}`)
       }
 

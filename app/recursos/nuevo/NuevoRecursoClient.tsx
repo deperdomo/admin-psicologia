@@ -23,33 +23,83 @@ export function NuevoRecursoClient() {
   const handleSubmit = async (data: RecursoFormData, wordFile?: File, pdfFile?: File) => {
     setIsSubmitting(true)
     try {
+      // Debug: Verificar usuario autenticado
+      console.log('Usuario actual:', user)
+      console.log('User ID:', user?.id)
+      
+      // Verificar sesión actual
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      console.log('Sesión actual:', session)
+      console.log('Error de sesión:', sessionError)
+      if (!session) {
+        throw new Error('No hay sesión activa')
+      }
+
       // 1. Verificar duplicados de resource_id
       const exists = await checkResourceIdExists(data.resource_id)
       if (exists) {
         throw new Error('Ya existe un recurso con este Resource ID')
       }
 
-      // 2. Subir archivos si existen
-      let wordFileUrl: string | undefined
-      let pdfFileUrl: string | undefined
+      // Validar campos requeridos
+      if (!data.resource_id || !data.title || !data.categoria || !data.resource_type || !data.age_ranges || !Array.isArray(data.age_ranges) || data.age_ranges.length === 0) {
+        throw new Error('Faltan campos requeridos')
+      }
+
+      // Validar que al menos un archivo esté presente
+      if (!wordFile && !pdfFile) {
+        throw new Error('Al menos un archivo (Word o PDF) es requerido')
+      }
+
+      // 2. Subir archivos si existen y recolectar metadatos
+      let word_public_url: string | undefined
+      let pdf_public_url: string | undefined
+      let word_file_name: string | null = null
+      let pdf_file_name: string | null = null
+      let file_size_word: number | null = null
+      let file_size_pdf: number | null = null
+      let word_storage_path: string | null = null
+      let pdf_storage_path: string | null = null
 
       if (wordFile) {
-        const wordPath = await uploadFile(wordFile, 'recursos-word', `${data.resource_id}.docx`)
-        const { data: { publicUrl } } = supabase.storage
-          .from('recursos-word')
-          .getPublicUrl(wordPath.filePath)
-        wordFileUrl = publicUrl
+        word_file_name = wordFile.name
+        file_size_word = wordFile.size
+        try {
+          const fileName = `${data.resource_id}.docx`
+          const wordPath = await uploadFile(wordFile, 'recursos-word', fileName)
+          word_storage_path = wordPath.filePath
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from('recursos-word')
+            .getPublicUrl(word_storage_path)
+          word_public_url = publicUrl
+          console.log('Word file subido exitosamente:', word_public_url)
+        } catch (uploadError) {
+          console.error('Error específico al subir Word:', uploadError)
+          throw uploadError
+        }
       }
 
       if (pdfFile) {
-        const pdfPath = await uploadFile(pdfFile, 'recursos-pdf', `${data.resource_id}.pdf`)
-        const { data: { publicUrl } } = supabase.storage
-          .from('recursos-pdf')
-          .getPublicUrl(pdfPath.filePath)
-        pdfFileUrl = publicUrl
+        pdf_file_name = pdfFile.name
+        file_size_pdf = pdfFile.size
+        try {
+          const fileName = `${data.resource_id}.pdf`
+          const pdfPath = await uploadFile(pdfFile, 'recursos-pdf', fileName)
+          pdf_storage_path = pdfPath.filePath
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from('recursos-pdf')
+            .getPublicUrl(pdf_storage_path)
+          pdf_public_url = publicUrl
+          console.log('PDF file subido exitosamente:', pdf_public_url)
+        } catch (uploadError) {
+          console.error('Error específico al subir PDF:', uploadError)
+          throw uploadError
+        }
       }
 
-      // 3. Preparar datos del recurso
+      // 3. Preparar datos del recurso con nombres de columnas correctos según el esquema
       const resourceData = {
         resource_id: data.resource_id,
         title: data.title,
@@ -57,14 +107,32 @@ export function NuevoRecursoClient() {
         categoria: data.categoria,
         resource_type: data.resource_type,
         age_ranges: data.age_ranges,
-        difficulty_level: data.difficulty_level || null,
+        // CORREGIDO: usar 'difficulty' en lugar de 'difficulty_level'
+        difficulty: data.difficulty_level || null,
         tags: data.tags?.length ? data.tags : null,
-        estimated_duration: data.estimated_duration || null,
+        estimated_reading_time: data.estimated_reading_time || null,
         is_premium: data.is_premium || false,
-        requires_supervision: data.requires_supervision || false,
-        word_file_url: wordFileUrl,
-        pdf_file_url: pdfFileUrl,
+        // NOTA: 'requires_supervision' no existe en tu esquema, lo removemos
+        // requires_supervision: data.requires_supervision || false,
+        
+        // URLs públicas
+        word_public_url,
+        pdf_public_url,
+        
+        // Nombres de archivos originales
+        word_file_name,
+        pdf_file_name,
+        
+        // Rutas de almacenamiento
+        word_storage_path,
+        pdf_storage_path,
+        
+        // Tamaños de archivos
+        file_size_word,
+        file_size_pdf,
       }
+
+      console.log('Datos a insertar:', resourceData)
 
       // 4. Insertar en la base de datos
       const { data: insertedResource, error } = await supabase
@@ -74,8 +142,11 @@ export function NuevoRecursoClient() {
         .single()
 
       if (error) {
+        console.error('Error detallado de Supabase:', error)
         throw new Error(`Error al crear el recurso: ${error.message}`)
       }
+
+      console.log('Recurso creado exitosamente:', insertedResource)
 
       // 5. Mostrar modal de éxito
       setCreatedResourceId(insertedResource.resource_id)

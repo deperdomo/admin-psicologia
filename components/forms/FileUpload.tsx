@@ -32,10 +32,15 @@ export function FileUpload({
   const [error, setError] = useState<string>('')
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-    setError('')
+    console.log('onDrop triggered');
+    console.log('Accepted files:', acceptedFiles);
+    console.log('Rejected files:', rejectedFiles);
+
+    setError('');
     
     if (rejectedFiles.length > 0) {
-      const rejection = rejectedFiles[0]
+      const rejection = rejectedFiles[0];
+      console.log('Rejection errors:', rejection.errors);
       if (rejection.errors[0]?.code === 'file-too-large') {
         setError(`El archivo excede el tamaño máximo de ${formatFileSize(maxSize)}`)
       } else if (rejection.errors[0]?.code === 'file-invalid-type') {
@@ -47,20 +52,31 @@ export function FileUpload({
     }
 
     if (acceptedFiles.length > 0) {
-      onFileSelect(acceptedFiles[0])
+      console.log('File accepted:', acceptedFiles[0]);
+      onFileSelect(acceptedFiles[0]);
     }
-  }, [maxSize, onFileSelect])
+  }, [maxSize, onFileSelect]);
+
+  const mimeTypes: Record<string, string> = {
+    '.pdf': 'application/pdf',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    // Agrega más extensiones si es necesario, ej. '.doc': 'application/msword'
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: accept.split(',').reduce((acc, type) => {
-      acc[type.trim()] = []
-      return acc
+    accept: accept.split(',').reduce((acc, ext) => {
+      const trimmed = ext.trim();
+      const mime = mimeTypes[trimmed] || trimmed; // Usa MIME conocido o fallback
+      if (mime) {
+        acc[mime] = [trimmed];
+      }
+      return acc;
     }, {} as Record<string, string[]>),
     maxSize,
     multiple: false,
     disabled: isUploading
-  })
+  });
 
   const removeFile = () => {
     if (!isUploading) {
