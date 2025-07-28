@@ -56,6 +56,18 @@ export default function RecursoForm({
   })
 
   const handleSubmit = async (data: RecursoFormData) => {
+    let fileError = '';
+    if (!wordFile && !isEditing) {
+      fileError = 'Debes adjuntar el archivo Word (.docx)';
+    }
+    if (!pdfFile && !isEditing) {
+      fileError = fileError ? 'Debes adjuntar ambos archivos: Word y PDF.' : 'Debes adjuntar el archivo PDF (.pdf)';
+    }
+    if (fileError) {
+      form.setError('word_public_url', { type: 'manual', message: fileError });
+      form.setError('pdf_public_url', { type: 'manual', message: fileError });
+      return;
+    }
     await onSubmit(data, wordFile, pdfFile)
   }
 
@@ -378,9 +390,16 @@ export default function RecursoForm({
               </div>
             </div>
 
+            {/* Mostrar error de archivos obligatorios */}
+            {!isEditing && (form.formState.errors.word_public_url || form.formState.errors.pdf_public_url) && (
+              <p className="text-sm text-red-600 mt-2">
+                {form.formState.errors.word_public_url?.message || form.formState.errors.pdf_public_url?.message}
+              </p>
+            )}
+
             {!isEditing && (
               <p className="text-sm text-gray-600">
-                * Al menos uno de los archivos es requerido para crear el recurso
+                * Ambos archivos son obligatorios para crear el recurso
               </p>
             )}
           </CardContent>

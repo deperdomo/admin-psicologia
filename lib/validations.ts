@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const recursoSchema = z.object({
   resource_id: z.string().min(1, "Resource ID es requerido").max(100, "Resource ID no puede exceder 100 caracteres"),
   title: z.string().min(1, "Título es requerido").max(255, "Título no puede exceder 255 caracteres"),
-  description: z.string().optional(),
+  description: z.string().min(1, "La descripción es obligatoria"),
   categoria: z.enum([
     'cartas_que_curan',
     'colecciones_ayuda',
@@ -27,16 +27,17 @@ export const recursoSchema = z.object({
     invalid_type_error: "Tipo de recurso no válido"
   }),
   age_ranges: z.array(z.enum(['0-3', '3-6', '6-12', '12+', 'todas'])).min(1, "Selecciona al menos un rango de edad"),
-  tags: z.array(z.string()).optional(),
-  is_premium: z.boolean().optional().default(false),
-  requires_supervision: z.boolean().optional().default(false),
-  estimated_reading_time: z.number().min(0, "El tiempo debe ser positivo").optional(),
+  tags: z.array(z.string()).min(1, "Debes ingresar al menos una etiqueta"),
+  estimated_reading_time: z.number({ required_error: "La duración estimada es obligatoria" }).min(1, "La duración debe ser mayor a 0"),
   difficulty_level: z.enum(['basico', 'intermedio', 'avanzado'], {
     required_error: "Nivel de dificultad es requerido",
     invalid_type_error: "Nivel de dificultad no válido"
-  }).optional(),
-  word_public_url : z.string().optional(),
+  }),
+  word_public_url: z.string().optional(),
   pdf_public_url: z.string().optional(),
+  // Configuración Adicional (no obligatoria)
+  is_premium: z.boolean().optional().default(false),
+  requires_supervision: z.boolean().optional().default(false),
 })
 
 export type RecursoFormSchema = z.infer<typeof recursoSchema>
