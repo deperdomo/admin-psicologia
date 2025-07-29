@@ -51,7 +51,7 @@ resource_id: VARCHAR(100) UNIQUE NOT NULL
 title: VARCHAR(255) NOT NULL  
 categoria: categoria_principal NOT NULL
 resource_type: resource_type NOT NULL
-difficulty: difficulty_level NOT NULL
+difficulty: difficulty NOT NULL
 age_ranges: age_range[] NOT NULL (mínimo 1 elemento)
 
 -- Campos Opcionales (generados automáticamente o opcionales)
@@ -79,7 +79,7 @@ updated_at: TIMESTAMP (auto)
 ```typescript
 type ResourceType = 'carta' | 'guia' | 'cuento' | 'ficha' | 'libro' | 'actividad'
 type AgeRange = '0-3' | '3-6' | '6-12' | '12+' | 'todas'
-type DifficultyLevel = 'basico' | 'intermedio' | 'avanzado'
+type Difficulty = 'basico' | 'intermedio' | 'avanzado'
 type CategoriaPrincipal = 'cartas_que_curan' | 'colecciones_ayuda' | 'cuentos_terapeuticos' | 'fichas_psicoeducativas' | 'guias_padres' | 'recomendaciones_libros'
 ```
 
@@ -107,7 +107,7 @@ type CategoriaPrincipal = 'cartas_que_curan' | 'colecciones_ayuda' | 'cuentos_te
    - Campo requerido
 
 5. **Dificultad** (select)
-   - Opciones del enum `difficulty_level`
+   - Opciones del enum `difficulty`
    - Campo requerido
 
 6. **Rangos de Edad** (multi-select)
@@ -203,7 +203,7 @@ export interface Recurso {
   categoria: CategoriaPrincipal
   resource_type: ResourceType
   age_ranges: AgeRange[]
-  difficulty: DifficultyLevel
+  difficulty: Difficulty
   tags?: string[]
   word_file_name?: string
   pdf_file_name?: string
@@ -229,7 +229,7 @@ export interface RecursoFormData {
   categoria: CategoriaPrincipal
   resource_type: ResourceType
   age_ranges: AgeRange[]
-  difficulty: DifficultyLevel
+  difficulty: Difficulty
   tags: string[]
   estimated_reading_time: number
   is_premium: boolean

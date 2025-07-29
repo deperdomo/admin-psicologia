@@ -29,7 +29,7 @@ export const recursoSchema = z.object({
   age_ranges: z.array(z.enum(['0-3', '3-6', '6-12', '12+', 'todas'])).min(1, "Selecciona al menos un rango de edad"),
   tags: z.array(z.string()).min(1, "Debes ingresar al menos una etiqueta"),
   estimated_reading_time: z.number({ required_error: "La duración estimada es obligatoria" }).min(1, "La duración debe ser mayor a 0"),
-  difficulty_level: z.enum(['basico', 'intermedio', 'avanzado'], {
+  difficulty: z.enum(['basico', 'intermedio', 'avanzado'], {
     required_error: "Nivel de dificultad es requerido",
     invalid_type_error: "Nivel de dificultad no válido"
   }),

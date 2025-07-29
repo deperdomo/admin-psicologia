@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { EditarRecursoClient } from './EditarRecursoClient'
+import EditarRecursoClient from './EditarRecursoClient'
 
 export const metadata: Metadata = {
   title: 'Editar Recurso - Admin Psicología',
@@ -7,6 +7,6 @@ export const metadata: Metadata = {
 }
 
 
-export default function EditarRecursoPage({ params }: { params: { id: string } }) {
-  return <EditarRecursoClient id={params.id} />;
+export default function EditarRecursoPage() {
+  return <EditarRecursoClient />;
 }

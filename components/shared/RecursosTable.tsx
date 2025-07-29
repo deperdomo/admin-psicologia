@@ -7,8 +7,17 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CATEGORIA_LABELS, RESOURCE_TYPE_LABELS, AGE_RANGE_LABELS } from '@/lib/validations'
+import { CATEGORIA_LABELS, RESOURCE_TYPE_LABELS } from '@/lib/validations'
 import type { Recurso } from '@/types/database'
+
+// Labels para los rangos de edad
+const AGE_RANGE_LABELS = {
+  '0-3': '0-3 años',
+  '3-6': '3-6 años', 
+  '6-12': '6-12 años',
+  '12+': '12+ años',
+  'todas': 'Todas las edades'
+} as const
 
 interface RecursosTableProps {
   recursos: Recurso[]
@@ -140,7 +149,9 @@ export default function RecursosTable({
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Edad
                     </th>
-                    
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Archivos
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Creado
                     </th>
@@ -156,6 +167,9 @@ export default function RecursosTable({
                         <div>
                           <div className="text-sm font-medium text-gray-900">
                             {recurso.title}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ID: {recurso.resource_id}
                           </div>
                           <div className="text-sm text-gray-500 max-w-xs truncate">
                             {recurso.description}
@@ -200,6 +214,23 @@ export default function RecursosTable({
                           )}
                         </div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          {recurso.word_public_url && (
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                              Word
+                            </Badge>
+                          )}
+                          {recurso.pdf_public_url && (
+                            <Badge variant="outline" className="text-xs bg-red-50 text-red-700">
+                              PDF
+                            </Badge>
+                          )}
+                          {!recurso.word_public_url && !recurso.pdf_public_url && (
+                            <span className="text-xs text-gray-400">Sin archivos</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(recurso.created_at).toLocaleDateString()}
                       </td>
@@ -210,6 +241,8 @@ export default function RecursosTable({
                             size="sm"
                             onClick={() => onDownload(recurso)}
                             className="h-8 w-8 p-0"
+                            disabled={!recurso.word_public_url && !recurso.pdf_public_url}
+                            title="Descargar archivos"
                           >
                             <Download className="h-4 w-4" />
                           </Button>
@@ -218,6 +251,7 @@ export default function RecursosTable({
                             size="sm"
                             onClick={() => onEdit(recurso.id)}
                             className="h-8 w-8 p-0"
+                            title="Editar recurso"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -226,6 +260,7 @@ export default function RecursosTable({
                             size="sm"
                             onClick={() => onDelete(recurso.id)}
                             className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            title="Eliminar recurso"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

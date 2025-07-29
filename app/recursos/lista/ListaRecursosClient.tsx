@@ -37,9 +37,12 @@ export default function ListaRecursosClient() {
     try {
       setLoading(true)
       setError(null)
+      console.log('🔄 Cargando recursos...') // Debug
       const data = await getRecursos()
+      console.log('✅ Recursos cargados:', data.length) // Debug
       setRecursos(data)
     } catch (err) {
+      console.error('❌ Error cargando recursos:', err) // Debug
       setError(err instanceof Error ? err.message : 'Error al cargar recursos')
     } finally {
       setLoading(false)
@@ -56,10 +59,11 @@ export default function ListaRecursosClient() {
     router.push(`/recursos/editar/${id}`)
   }
 
-  // Manejar eliminación
+  // Manejar eliminación - Abrir modal
   const handleDelete = (id: string) => {
     const recurso = recursos.find(r => r.id === id)
     if (recurso) {
+      console.log('🗑️ Preparando eliminación de:', recurso.resource_id) // Debug
       setDeleteModal({
         isOpen: true,
         recurso,
@@ -69,16 +73,25 @@ export default function ListaRecursosClient() {
     }
   }
 
+  // Confirmar eliminación
   const confirmDelete = async () => {
     if (!deleteModal.recurso) return
+
+    console.log('🗑️ Iniciando eliminación de:', deleteModal.recurso.resource_id) // Debug
 
     try {
       setDeleteModal(prev => ({ ...prev, loading: true, error: null }))
       
+      // Eliminar de la base de datos
       await deleteRecurso(deleteModal.recurso.id)
+      console.log('✅ Recurso eliminado de BD:', deleteModal.recurso.resource_id) // Debug
       
-      // Actualizar la lista
-      setRecursos(prev => prev.filter(r => r.id !== deleteModal.recurso!.id))
+      // ✅ CLAVE: Actualizar el estado local inmediatamente
+      setRecursos(prev => {
+        const newRecursos = prev.filter(r => r.id !== deleteModal.recurso!.id)
+        console.log('✅ Estado actualizado. Recursos restantes:', newRecursos.length) // Debug
+        return newRecursos
+      })
       
       // Cerrar modal
       setDeleteModal({
@@ -87,7 +100,12 @@ export default function ListaRecursosClient() {
         loading: false,
         error: null
       })
+
+      // Mostrar notificación de éxito (si tienes toast)
+      // toast.success('Recurso eliminado exitosamente')
+      
     } catch (err) {
+      console.error('❌ Error eliminando recurso:', err) // Debug
       setDeleteModal(prev => ({
         ...prev,
         loading: false,
@@ -99,24 +117,31 @@ export default function ListaRecursosClient() {
   // Manejar descarga
   const handleDownload = async (recurso: Recurso) => {
     try {
-      if (recurso.word_public_url ) {
+      let downloadCount = 0
+      
+      if (recurso.word_public_url) {
         await downloadFile(
-          recurso.word_public_url , 
-          `${recurso.resource_id}_documento.docx`
+          recurso.word_public_url, 
+          recurso.word_file_name || `${recurso.resource_id}_documento.docx`
         )
+        downloadCount++
       }
       
       if (recurso.pdf_public_url) {
         await downloadFile(
           recurso.pdf_public_url, 
-          `${recurso.resource_id}_documento.pdf`
+          recurso.pdf_file_name || `${recurso.resource_id}_documento.pdf`
         )
+        downloadCount++
       }
       
-      if (!recurso.word_public_url  && !recurso.pdf_public_url) {
+      if (downloadCount === 0) {
         setError('No hay archivos disponibles para descargar')
+      } else {
+        // toast.success(`${downloadCount} archivo(s) descargado(s)`)
       }
     } catch (err) {
+      console.error('Error downloading file:', err)
       setError(err instanceof Error ? err.message : 'Error al descargar archivo')
     }
   }
@@ -143,7 +168,7 @@ export default function ListaRecursosClient() {
           </p>
         </div>
         <Button 
-  onClick={() => router.push('/recursos/nuevo')}
+          onClick={() => router.push('/recursos/nuevo')}
           className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
@@ -154,7 +179,17 @@ export default function ListaRecursosClient() {
       {/* Error Alert */}
       {error && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="ml-2"
+              onClick={() => setError(null)}
+            >
+              Cerrar
+            </Button>
+          </AlertDescription>
         </Alert>
       )}
 

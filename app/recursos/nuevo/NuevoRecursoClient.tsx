@@ -107,8 +107,8 @@ export function NuevoRecursoClient() {
         categoria: data.categoria,
         resource_type: data.resource_type,
         age_ranges: data.age_ranges,
-        // CORREGIDO: usar 'difficulty' en lugar de 'difficulty_level'
-        difficulty: data.difficulty_level || null,
+        // CORREGIDO: usar 'difficulty' en lugar de 'difficulty'
+        difficulty: data.difficulty || null,
         tags: data.tags?.length ? data.tags : null,
         estimated_reading_time: data.estimated_reading_time || null,
         is_premium: data.is_premium || false,
