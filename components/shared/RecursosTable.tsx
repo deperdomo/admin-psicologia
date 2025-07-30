@@ -64,9 +64,9 @@ export default function RecursosTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 flex flex-col items-center">
       {/* Filtros y búsqueda */}
-      <Card>
+      <Card className="min-w-[1450px]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
@@ -113,7 +113,7 @@ export default function RecursosTable({
       </Card>
 
       {/* Resultados */}
-      <Card>
+      <Card className="min-w-[1450px]">
         <CardHeader>
           <CardTitle>
             Recursos ({filteredRecursos.length} de {recursos.length})
@@ -134,113 +134,74 @@ export default function RecursosTable({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full table-auto divide-y divide-gray-200 text-xs">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Recurso
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Categoría
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tipo
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Edad
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Archivos
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Creado
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Acciones
-                    </th>
+                    <th className="px-2 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Recurso</th>
+                    <th className="px-2 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap hidden sm:table-cell">Categoría</th>
+                    <th className="px-2 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap hidden md:table-cell">Tipo</th>
+                    <th className="px-2 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap hidden md:table-cell">Edad</th>
+                    <th className="px-2 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap hidden sm:table-cell">Archivos</th>
+                    <th className="px-2 py-2 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">Creado</th>
+                    <th className="px-2 py-2 text-right font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredRecursos.map((recurso) => (
                     <tr key={recurso.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2 align-top max-w-[190px]">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {recurso.title}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            ID: {recurso.resource_id}
-                          </div>
-                          <div className="text-sm text-gray-500 max-w-xs truncate">
-                            {recurso.description}
-                          </div>
+                          <div className="font-medium text-gray-900 max-w-[250px] truncate">{recurso.title}</div>
+                          <div className="text-xs text-gray-500 max-w-[200px] truncate">{recurso.description}</div>
                           {recurso.tags && recurso.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {recurso.tags.slice(0, 3).map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="text-xs">
-                                  {tag}
-                                </Badge>
+                              {recurso.tags.slice(0, 2).map((tag, index) => (
+                                <Badge key={index} variant="secondary" className="text-[10px]">{tag}</Badge>
                               ))}
-                              {recurso.tags.length > 3 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{recurso.tags.length - 3}
-                                </Badge>
+                              {recurso.tags.length > 2 && (
+                                <Badge variant="outline" className="text-[10px]">+{recurso.tags.length - 2}</Badge>
                               )}
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant="outline">
-                          {CATEGORIA_LABELS[recurso.categoria]}
-                        </Badge>
+                      <td className="px-2 py-2 whitespace-nowrap hidden sm:table-cell align-top">
+                        <Badge variant="outline">{CATEGORIA_LABELS[recurso.categoria]}</Badge>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant="secondary">
-                          {RESOURCE_TYPE_LABELS[recurso.resource_type]}
-                        </Badge>
+                      <td className="px-2 py-2 whitespace-nowrap hidden md:table-cell align-top">
+                        <Badge variant="secondary">{RESOURCE_TYPE_LABELS[recurso.resource_type]}</Badge>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-2 py-2 whitespace-nowrap hidden md:table-cell align-top">
                         <div className="flex flex-wrap gap-1">
-                          {recurso.age_ranges?.slice(0, 2).map((range) => (
-                            <Badge key={range} variant="outline" className="text-xs">
-                              {AGE_RANGE_LABELS[range]}
-                            </Badge>
+                          {recurso.age_ranges?.slice(0, 1).map((range) => (
+                            <Badge key={range} variant="outline" className="text-[10px]">{AGE_RANGE_LABELS[range]}</Badge>
                           ))}
-                          {recurso.age_ranges && recurso.age_ranges.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{recurso.age_ranges.length - 2}
-                            </Badge>
+                          {recurso.age_ranges && recurso.age_ranges.length > 1 && (
+                            <Badge variant="outline" className="text-[10px]">+{recurso.age_ranges.length - 1}</Badge>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-2 py-2 whitespace-nowrap hidden sm:table-cell align-top">
                         <div className="flex flex-col gap-1">
                           {recurso.word_public_url && (
-                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
-                              Word
-                            </Badge>
+                            <Badge variant="outline" className="text-[10px] bg-blue-50 text-blue-700">Word</Badge>
                           )}
                           {recurso.pdf_public_url && (
-                            <Badge variant="outline" className="text-xs bg-red-50 text-red-700">
-                              PDF
-                            </Badge>
+                            <Badge variant="outline" className="text-[10px] bg-red-50 text-red-700">PDF</Badge>
                           )}
                           {!recurso.word_public_url && !recurso.pdf_public_url && (
-                            <span className="text-xs text-gray-400">Sin archivos</span>
+                            <span className="text-[10px] text-gray-400">Sin archivos</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(recurso.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end gap-2">
+                      <td className="px-2 py-2 whitespace-nowrap text-gray-500 hidden lg:table-cell align-top">{new Date(recurso.created_at).toLocaleDateString()}</td>
+                      <td className="px-2 py-2 whitespace-nowrap text-right font-medium align-top">
+                        <div className="flex justify-end gap-1">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => onDownload(recurso)}
-                            className="h-8 w-8 p-0"
+                            className="h-7 w-7 p-0"
                             disabled={!recurso.word_public_url && !recurso.pdf_public_url}
                             title="Descargar archivos"
                           >
@@ -250,7 +211,7 @@ export default function RecursosTable({
                             variant="outline"
                             size="sm"
                             onClick={() => onEdit(recurso.id)}
-                            className="h-8 w-8 p-0"
+                            className="h-7 w-7 p-0"
                             title="Editar recurso"
                           >
                             <Edit className="h-4 w-4" />
@@ -259,7 +220,7 @@ export default function RecursosTable({
                             variant="outline"
                             size="sm"
                             onClick={() => onDelete(recurso.id)}
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                             title="Eliminar recurso"
                           >
                             <Trash2 className="h-4 w-4" />
