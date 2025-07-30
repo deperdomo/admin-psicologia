@@ -71,7 +71,7 @@ export async function uploadFile(
     
     // 4. Intentar el upload
     console.log('🚀 Attempting upload with path:', path);
-    let uploadResult: any;
+    let uploadResult: { id: string; path: string; fullPath: string };
     let finalPath: string;
     
     const { data, error } = await supabase.storage
@@ -98,12 +98,10 @@ export async function uploadFile(
         throw new Error(`Upload failed: ${error.message}`);
       } else {
         console.log('✓ Retry successful!');
-        uploadResult = retryData;
         finalPath = retryData.path;
       }
     } else {
       console.log('✓ Upload successful!');
-      uploadResult = data;
       finalPath = data.path;
     }
     

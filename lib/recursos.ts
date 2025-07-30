@@ -132,7 +132,7 @@ export async function updateRecurso(
     }
 
     // Preparar datos de actualización
-    const updateData: any = {
+    const updateData: Partial<Recurso> & { updated_at: string } = {
       updated_at: new Date().toISOString()
     }
 
@@ -438,7 +438,7 @@ export async function debugResourcePermissions(id: string) {
     console.log('🔍 === DIAGNÓSTICO DE PERMISOS ===')
     
     // 1. Verificar usuario actual
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
     console.log('👤 Usuario actual:', {
       id: user?.id,
       email: user?.email,
