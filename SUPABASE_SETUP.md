@@ -39,7 +39,7 @@ CREATE TYPE resource_type AS ENUM (
   'actividad'
 );
 
-CREATE TYPE difficulty_level AS ENUM (
+CREATE TYPE difficulty AS ENUM (
   'basico',
   'intermedio',
   'avanzado'
@@ -61,7 +61,7 @@ CREATE TABLE recursos (
   description TEXT,
   categoria categoria_principal NOT NULL,
   resource_type resource_type NOT NULL,
-  difficulty difficulty_level NOT NULL,
+  difficulty difficulty NOT NULL,
   age_ranges age_range[] NOT NULL,
   tags TEXT[],
   word_file_name VARCHAR(255),

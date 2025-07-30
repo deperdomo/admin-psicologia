@@ -49,7 +49,7 @@ export default function RecursoForm({
       is_premium: initialData?.is_premium || false,
       // REMOVIDO: requires_supervision ya que no existe en el esquema
       estimated_reading_time: initialData?.estimated_reading_time,
-      difficulty_level: initialData?.difficulty_level,
+      difficulty: initialData?.difficulty,
       word_public_url: initialData?.word_public_url,
       pdf_public_url: initialData?.pdf_public_url,
     }
@@ -228,7 +228,7 @@ export default function RecursoForm({
 
               <FormField
                 control={form.control}
-                name="difficulty_level"
+                name="difficulty"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nivel de Dificultad</FormLabel>

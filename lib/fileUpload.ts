@@ -45,26 +45,14 @@ export async function uploadFile(
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     console.log('✓ User authenticated:', !!user);
     console.log('  - User ID:', user?.id);
-    console.log('  - User role:', user?.role);
-    console.log('  - User aud:', user?.aud);
     
-    if (userError) {
-      console.error('❌ Auth error:', userError);
-      throw new Error(`Authentication error: ${userError.message}`);
-    }
-    
-    if (!user) {
-      throw new Error('No authenticated user found');
+    if (userError || !user) {
+      throw new Error(`Authentication error: ${userError?.message || 'No user found'}`);
     }
     
     // 2. Verificar sesión
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     console.log('✓ Session valid:', !!session);
-    if (session?.expires_at) {
-      console.log('  - Session expires at:', new Date(session.expires_at * 1000));
-    } else {
-      console.log('  - Session expires at: unknown');
-    }
     
     if (sessionError) {
       console.error('❌ Session error:', sessionError);
@@ -81,18 +69,11 @@ export async function uploadFile(
       console.log('✓ Bucket accessible');
     }
     
-    // 4. Verificar permisos específicos del usuario
-    console.log('🧪 Testing auth functions...');
-    const { error: testError } = await supabase
-      .from('storage.objects')
-      .select('*')
-      .limit(1);
-    if (testError) {
-      console.log('⚠️  Cannot query storage.objects directly:', testError.message);
-    }
+    // 4. Intentar el upload
+    console.log('🚀 Attempting upload with path:', path);
+    let uploadResult: any;
+    let finalPath: string;
     
-    // 5. Intentar el upload
-    console.log('🚀 Attempting upload...');
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(path, file, {
@@ -101,10 +82,7 @@ export async function uploadFile(
       });
     
     if (error) {
-      console.error('❌ Upload failed:');
-      // StorageError does not have 'statusCode'
-      console.error('  - Error message:', error.message);
-      console.error('  - Full error:', error);
+      console.error('❌ Upload failed:', error.message);
       
       // Intentar con upsert true por si el archivo ya existe
       console.log('🔄 Retrying with upsert: true...');
@@ -120,34 +98,35 @@ export async function uploadFile(
         throw new Error(`Upload failed: ${error.message}`);
       } else {
         console.log('✓ Retry successful!');
-        
-        // Obtener URL pública del archivo subido con retry
-        const { data: { publicUrl } } = supabase.storage
-          .from(bucket)
-          .getPublicUrl(path);
-        
-        return {
-          publicUrl,
-          filePath: retryData.path,
-          fileSize: file.size,
-          fileName: file.name
-        };
+        uploadResult = retryData;
+        finalPath = retryData.path;
       }
     } else {
       console.log('✓ Upload successful!');
-      
-      // Obtener URL pública del archivo subido exitosamente
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(path);
-      
-      return {
-        publicUrl,
-        filePath: data.path,
-        fileSize: file.size,
-        fileName: file.name
-      };
+      uploadResult = data;
+      finalPath = data.path;
     }
+    
+    // CORRECCIÓN CLAVE: Usar el finalPath correcto para getPublicUrl
+    console.log('📁 Final path for public URL:', finalPath);
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(finalPath); // ✅ Usar finalPath en lugar de path original
+    
+    console.log('🔗 Generated public URL:', publicUrl);
+    
+    // Verificar que la URL no esté vacía
+    if (!publicUrl || publicUrl.trim() === '') {
+      throw new Error('Failed to generate public URL - URL is empty');
+    }
+    
+    return {
+      publicUrl,
+      filePath: finalPath, // ✅ Retornar el path final correcto
+      fileSize: file.size,
+      fileName: file.name
+    };
     
   } catch (error) {
     console.error('❌ Upload process failed:', error);
