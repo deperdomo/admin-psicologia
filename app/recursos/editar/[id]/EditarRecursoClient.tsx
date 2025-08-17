@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { useRequireAuth } from '@/lib/hooks/useRequireAuth'
 import { getRecursoById, updateRecurso, checkResourceIdExists } from '@/lib/recursos'
 import RecursoForm from '@/components/forms/RecursoForm'
@@ -14,7 +14,9 @@ export default function EditarRecursoClient() {
   const { user, loading: authLoading } = useRequireAuth()
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const resourceId = params.id as string
+  const returnUrl = searchParams.get('returnUrl') || '/recursos/lista'
 
   const [recurso, setRecurso] = useState<Recurso | null>(null)
   const [loading, setLoading] = useState(true)
@@ -89,7 +91,7 @@ export default function EditarRecursoClient() {
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false)
-    router.push('/recursos/lista')
+    router.push(decodeURIComponent(returnUrl))
   }
 
   // Loading states

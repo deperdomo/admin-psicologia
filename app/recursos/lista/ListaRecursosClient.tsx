@@ -56,7 +56,13 @@ export default function ListaRecursosClient() {
 
   // Manejar edición
   const handleEdit = (id: string) => {
-    router.push(`/recursos/editar/${id}`)
+    // Capturar filtros actuales de la URL
+    const currentParams = new URLSearchParams(window.location.search)
+    const returnParams = currentParams.toString()
+    const returnUrl = returnParams ? `/recursos/lista?${returnParams}` : '/recursos/lista'
+    
+    // Navegar a edición con parámetro de retorno
+    router.push(`/recursos/editar/${id}?returnUrl=${encodeURIComponent(returnUrl)}`)
   }
 
   // Manejar eliminación - Abrir modal

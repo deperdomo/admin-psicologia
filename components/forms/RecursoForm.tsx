@@ -123,7 +123,7 @@ export default function RecursoForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción</FormLabel>
+                  <FormLabel>Descripción *</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Descripción detallada del recurso..."
@@ -211,7 +211,7 @@ export default function RecursoForm({
                 name="estimated_reading_time"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duración Estimada (minutos)</FormLabel>
+                    <FormLabel>Duración Estimada (minutos) *</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
@@ -231,7 +231,7 @@ export default function RecursoForm({
                 name="difficulty"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nivel de Dificultad</FormLabel>
+                    <FormLabel>Nivel de Dificultad *</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
                       defaultValue={field.value}
@@ -261,7 +261,7 @@ export default function RecursoForm({
         {/* Rangos de Edad */}
         <Card>
           <CardHeader>
-            <CardTitle>Rangos de Edad</CardTitle>
+            <CardTitle>Rangos de Edad *</CardTitle>
           </CardHeader>
           <CardContent>
             <FormField
@@ -286,7 +286,7 @@ export default function RecursoForm({
         {/* Etiquetas */}
         <Card>
           <CardHeader>
-            <CardTitle>Etiquetas</CardTitle>
+            <CardTitle>Etiquetas *</CardTitle>
           </CardHeader>
           <CardContent>
             <FormField

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Edit, Trash2, Download, Eye, Search, Filter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,9 +35,30 @@ export default function RecursosTable({
   onDownload, 
   loading = false 
 }: RecursosTableProps) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterCategoria, setFilterCategoria] = useState<string>('all')
-  const [filterTipo, setFilterTipo] = useState<string>('all')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Inicializar estados desde query parameters
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
+  const [filterCategoria, setFilterCategoria] = useState<string>(searchParams.get('categoria') || 'all')
+  const [filterTipo, setFilterTipo] = useState<string>(searchParams.get('tipo') || 'all')
+
+  // Función para actualizar URL con filtros
+  const updateUrlWithFilters = useCallback((search: string, categoria: string, tipo: string) => {
+    const params = new URLSearchParams()
+    if (search) params.set('search', search)
+    if (categoria !== 'all') params.set('categoria', categoria)
+    if (tipo !== 'all') params.set('tipo', tipo)
+    
+    const queryString = params.toString()
+    const newUrl = queryString ? `?${queryString}` : ''
+    router.replace(`/recursos/lista${newUrl}`, { scroll: false })
+  }, [router])
+
+  // Actualizar URL cuando cambian los filtros
+  useEffect(() => {
+    updateUrlWithFilters(searchTerm, filterCategoria, filterTipo)
+  }, [searchTerm, filterCategoria, filterTipo, updateUrlWithFilters])
 
   // Filtrar recursos
   const filteredRecursos = recursos.filter(recurso => {
