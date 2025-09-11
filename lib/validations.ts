@@ -74,3 +74,162 @@ export const AGE_RANGE_LABELS = {
   '12+': '12+ años',
   'todas': 'Todas las edades'
 } as const
+
+// ===== BLOG ARTICLES VALIDATIONS =====
+
+export const blogArticleSchema = z.object({
+  title: z.string().min(1, "Título es requerido").max(255, "Título no puede exceder 255 caracteres"),
+  subtitle: z.string().optional(),
+  slug: z.string().min(1, "Slug es requerido").max(255, "Slug no puede exceder 255 caracteres")
+    .regex(/^[a-z0-9-]+$/, "El slug solo puede contener letras minúsculas, números y guiones"),
+  image_1_alt: z.string().optional(),
+  image_1_url: z.string().optional(),
+  social_share_image: z.string().optional(),
+  introduction: z.string().min(1, "La introducción es obligatoria"),
+  
+  // Secciones de contenido estructurado
+  current_data_research: z.object({
+    title: z.string().min(1, "Título es requerido"),
+    content: z.string().min(1, "Contenido es requerido")
+  }).optional(),
+  
+  reflective_question: z.string().optional(),
+  
+  anonymous_case: z.object({
+    title: z.string().min(1, "Título es requerido"),
+    content: z.string().min(1, "Contenido es requerido")
+  }).optional(),
+  
+  psychological_analysis: z.object({
+    title: z.string().min(1, "Título es requerido"),
+    content: z.string().min(1, "Contenido es requerido")
+  }),
+  
+  practical_recommendations: z.object({
+    title: z.string().min(1, "Título es requerido"),
+    content: z.string().min(1, "Contenido es requerido")
+  }),
+  
+  call_to_action: z.string().optional(),
+  
+  empathetic_closing: z.object({
+    title: z.string().min(1, "Título es requerido"),
+    content: z.string().min(1, "Contenido es requerido")
+  }).optional(),
+  
+  // Arrays de objetos
+  additional_resources: z.array(z.object({
+    tipo: z.string().min(1, "Tipo es requerido"),
+    titulo: z.string().min(1, "Título es requerido"),
+    autor: z.string().optional(),
+    url: z.string().optional()
+  })).optional(),
+  
+  faq_data: z.array(z.object({
+    pregunta: z.string().min(1, "Pregunta es requerida"),
+    respuesta: z.string().min(1, "Respuesta es requerida")
+  })).optional(),
+  
+  summary_points: z.array(z.object({
+    point: z.string().min(1, "Punto es requerido")
+  })).optional(),
+  
+  bibliography: z.array(z.object({
+    id: z.string().min(1, "ID es requerido"),
+    authors: z.array(z.string().min(1)),
+    year: z.number().min(1900).max(new Date().getFullYear()),
+    title: z.string().min(1, "Título es requerido"),
+    journal: z.string().optional(),
+    publisher: z.string().optional(),
+    volume: z.string().optional(),
+    pages: z.string().optional(),
+    doi: z.string().optional(),
+    type: z.string().min(1, "Tipo es requerido"),
+    cited_in_text: z.boolean(),
+    citation_format: z.string().min(1, "Formato de cita es requerido")
+  })).optional(),
+  
+  related_articles: z.array(z.object({
+    title: z.string().min(1, "Título es requerido"),
+    slug: z.string().optional(),
+    category: z.string().optional(),
+    author_name: z.string().optional(),
+    author_image: z.string().optional(),
+    image_url: z.string().optional(),
+    relevance: z.string().optional(),
+    type: z.string().optional(),
+    description: z.string().optional()
+  })).optional(),
+  
+  external_links: z.array(z.object({
+    url: z.string().url("URL válida es requerida"),
+    descripcion: z.string().min(1, "Descripción es requerida")
+  })).optional(),
+  
+  recommended_products: z.array(z.object({
+    nombre: z.string().min(1, "Nombre es requerido"),
+    descripcion: z.string().min(1, "Descripción es requerida")
+  })).optional(),
+  
+  professional_recommendations: z.array(z.object({
+    title: z.string().min(1, "Título es requerido")
+  })).optional(),
+  
+  // Meta información
+  meta_description: z.string().optional(),
+  meta_keywords: z.string().optional(),
+  canonical_url: z.string().url("URL canónica debe ser válida").optional(),
+  
+  // Categorización
+  category: z.enum(['desarrollo', 'comportamiento', 'emociones', 'educacion', 'familia', 'trastornos', 'otros']).optional(),
+  subcategory: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  target_audience: z.string().optional(),
+  age_range: z.string().optional(),
+  topic_complexity: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+  
+  // Autor
+  author_name: z.string().min(1, "Nombre del autor es requerido"),
+  author_email: z.string().email("Email válido es requerido").optional(),
+  author_bio: z.string().optional(),
+  author_credentials: z.string().optional(),
+  author_photo_url: z.string().optional(),
+  author_social_links: z.object({
+    twitter: z.string().optional(),
+    linkedin: z.string().optional(),
+    instagram: z.string().optional(),
+    web: z.string().optional()
+  }).optional(),
+  
+  // Configuración
+  status: z.enum(['draft', 'published', 'archived']).optional().default('draft'),
+  is_featured: z.boolean().optional().default(false),
+  is_trending: z.boolean().optional().default(false),
+  is_professional_content: z.boolean().optional().default(false),
+  reading_time_minutes: z.number().min(1, "Tiempo de lectura debe ser mayor a 0").optional()
+})
+
+export type BlogArticleFormSchema = z.infer<typeof blogArticleSchema>
+
+// Constantes para los labels de los enums del blog
+export const BLOG_CATEGORY_LABELS = {
+  desarrollo: 'Desarrollo Infantil',
+  comportamiento: 'Comportamiento',
+  emociones: 'Emociones',
+  educacion: 'Educación',
+  familia: 'Familia',
+  trastornos: 'Trastornos',
+  otros: 'Otros'
+} as const
+
+export const BLOG_COMPLEXITY_LABELS = {
+  beginner: 'Principiante',
+  intermediate: 'Intermedio',
+  advanced: 'Avanzado'
+} as const
+
+export const BLOG_STATUS_LABELS = {
+  draft: 'Borrador',
+  published: 'Publicado',
+  archived: 'Archivado'
+} as const

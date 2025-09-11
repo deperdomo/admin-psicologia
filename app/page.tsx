@@ -41,15 +41,27 @@ export default function HomePage() {
             </p>
           </Link>
           <Link 
-            href="/documentos"
+            href="/articulos/nuevo"
+            className="group block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
+          >
+            <div className="flex items-center space-x-3 mb-4">
+              <PlusCircle className="h-8 w-8 text-yellow-400 group-hover:text-yellow-500" />
+              <h3 className="text-xl font-semibold text-gray-900">Nuevo Artículo</h3>
+            </div>
+            <p className="text-gray-600">
+              Crea y publica nuevos artículos de psicología.
+            </p>
+          </Link>
+          <Link 
+            href="/articulos/lista"
             className="group block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
           >
             <div className="flex items-center space-x-3 mb-4">
               <FileText className="h-8 w-8 text-purple-600 group-hover:text-purple-700" />
-              <h3 className="text-xl font-semibold text-gray-900">Documentos</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Lista de Artículos</h3>
             </div>
             <p className="text-gray-600">
-              Accede a los documentos subidos y gestionados en el sistema.
+              Accede a la lista de artículos publicados en el sistema.
             </p>
           </Link>
         </div>

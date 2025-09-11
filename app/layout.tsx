@@ -31,10 +31,16 @@ export default function RootLayout({
                     Inicio
                   </Link>
                   <Link href="/recursos/lista" className="text-gray-600 hover:text-gray-900">
-                    Lista de Recursos
+                    Recursos
+                  </Link>
+                  <Link href="/articulos/lista" className="text-gray-600 hover:text-gray-900">
+                    Artículos
                   </Link>
                   <Link href="/recursos/nuevo" className="text-blue-600 hover:text-blue-800 font-medium">
-                    Nuevo Recurso
+                    + Recurso
+                  </Link>
+                  <Link href="/articulos/nuevo" className="text-purple-600 hover:text-purple-800 font-medium">
+                    + Artículo
                   </Link>
                 </nav>
               </div>

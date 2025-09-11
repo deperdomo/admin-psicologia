@@ -71,7 +71,6 @@ export async function uploadFile(
     
     // 4. Intentar el upload
     console.log('🚀 Attempting upload with path:', path);
-    let uploadResult: { id: string; path: string; fullPath: string };
     let finalPath: string;
     
     const { data, error } = await supabase.storage

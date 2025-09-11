@@ -26,15 +26,59 @@ interface RecursoFormProps {
   isEditing?: boolean
 }
 
-export default function RecursoForm({ 
-  initialData, 
-  onSubmit, 
+export default function RecursoForm({
+  initialData,
+  onSubmit,
   submitLabel = 'Crear Recurso',
   disabled = false,
   isEditing = false
 }: RecursoFormProps) {
   const [wordFile, setWordFile] = useState<File | undefined>()
   const [pdfFile, setPdfFile] = useState<File | undefined>()
+
+  // Auto-generar resource_id basado en el título
+  const generateResourceId = (title: string) => {
+    if (!title.trim()) return ''
+
+    const baseId = title
+      .toLowerCase()
+      .trim()
+      // Convertir caracteres especiales a su equivalente ASCII
+      .replace(/[áàäâãā]/g, 'a')
+      .replace(/[éèëêēė]/g, 'e')
+      .replace(/[íìïîīį]/g, 'i')
+      .replace(/[óòöôõō]/g, 'o')
+      .replace(/[úùüûū]/g, 'u')
+      .replace(/[ñń]/g, 'n')
+      .replace(/[çć]/g, 'c')
+      .replace(/[ý]/g, 'y')
+      // Eliminar caracteres especiales que no sean letras, números, espacios o guiones
+      .replace(/[^a-z0-9\s-]/g, '')
+      // Convertir espacios múltiples a un solo guión
+      .replace(/\s+/g, '-')
+      // Eliminar guiones múltiples
+      .replace(/-+/g, '-')
+      // Eliminar guiones al inicio y final
+      .replace(/^-|-$/g, '')
+
+    // Limitar longitud total del ID final (incluyendo el prefijo rec-)
+    const maxLength = 50 // Longitud máxima total
+
+    const maxBaseLength = maxLength
+
+    const truncatedBaseId = baseId.length > maxBaseLength
+      ? baseId.substring(0, maxBaseLength).replace(/-$/, '') // Evitar que termine en guión
+      : baseId
+
+    return `${truncatedBaseId}`
+  }
+
+  // Generar un resource_id único si hay conflictos
+  const generateUniqueResourceId = (baseId: string) => {
+    // Aquí podríamos agregar lógica para verificar duplicados en la base de datos
+    // Por ahora, simplemente devolvemos el baseId
+    return baseId
+  }
 
   const form = useForm<RecursoFormData>({
     resolver: zodResolver(recursoSchema),
@@ -83,32 +127,45 @@ export default function RecursoForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="resource_id"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ID del Recurso *</FormLabel>
+                    <FormLabel>Título *</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="ej: REC001" 
-                        {...field} 
+                      <Input
+                        placeholder="Título del recurso"
+                        {...field}
                         disabled={disabled}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          // Auto-generar resource_id cuando cambie el título
+                          if (e.target.value.trim().length > 2) {
+                            const newResourceId = generateResourceId(e.target.value)
+                            if (newResourceId) {
+                              const uniqueId = generateUniqueResourceId(newResourceId)
+                              form.setValue('resource_id', uniqueId)
+                            }
+                          } else {
+                            // Si el título es muy corto, limpiar el resource_id
+                            form.setValue('resource_id', '')
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
-                name="title"
+                name="resource_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Título *</FormLabel>
+                    <FormLabel>ID del Recurso *</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Título del recurso" 
-                        {...field} 
+                      <Input
+                        placeholder="Se genera automáticamente desde el título"
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -125,10 +182,10 @@ export default function RecursoForm({
                 <FormItem>
                   <FormLabel>Descripción *</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Descripción detallada del recurso..."
                       className="min-h-[100px]"
-                      {...field} 
+                      {...field}
                       disabled={disabled}
                     />
                   </FormControl>
@@ -152,8 +209,8 @@ export default function RecursoForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoría *</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={disabled}
                     >
@@ -181,8 +238,8 @@ export default function RecursoForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo de Recurso *</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={disabled}
                     >
@@ -213,8 +270,8 @@ export default function RecursoForm({
                   <FormItem>
                     <FormLabel>Duración Estimada (minutos) *</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
+                      <Input
+                        type="number"
                         placeholder="ej: 30"
                         {...field}
                         onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
@@ -232,8 +289,8 @@ export default function RecursoForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nivel de Dificultad *</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={disabled}
                     >
@@ -407,8 +464,8 @@ export default function RecursoForm({
 
         {/* Botón de envío */}
         <div className="flex justify-end">
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={disabled}
             className="flex items-center gap-2"
           >
