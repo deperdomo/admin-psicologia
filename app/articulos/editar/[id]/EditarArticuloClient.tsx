@@ -109,7 +109,6 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
       summary_points: articulo.summary_points || [],
       bibliography: articulo.bibliography || [],
       related_articles: articulo.related_articles || [],
-      external_links: articulo.external_links || [],
       meta_description: articulo.meta_description || '',
       meta_keywords: articulo.meta_keywords || '',
       canonical_url: articulo.canonical_url || '',

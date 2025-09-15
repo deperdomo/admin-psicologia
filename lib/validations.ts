@@ -150,35 +150,47 @@ export const blogArticleSchema = z.object({
   })).optional(),
   
   related_articles: z.array(z.object({
+    slug: z.string().min(1, "Slug es requerido"),
+    type: z.string().min(1, "Tipo es requerido"),
     title: z.string().min(1, "Título es requerido"),
-    slug: z.string().optional(),
-    category: z.string().optional(),
-    author_name: z.string().optional(),
-    author_image: z.string().optional(),
+    category: z.string().min(1, "Categoría es requerida"),
     image_url: z.string().optional(),
-    relevance: z.string().optional(),
-    type: z.string().optional(),
-    description: z.string().optional()
-  })).optional(),
-  
-  external_links: z.array(z.object({
-    url: z.string().url("URL válida es requerida"),
-    descripcion: z.string().min(1, "Descripción es requerida")
+    relevance: z.string().min(1, "Relevancia es requerida"),
+    author_name: z.string().min(1, "Nombre del autor es requerido"),
+    description: z.string().optional(),
+    author_image: z.string().optional()
   })).optional(),
   
   recommended_products: z.array(z.object({
     nombre: z.string().min(1, "Nombre es requerido"),
-    descripcion: z.string().min(1, "Descripción es requerida")
+    descripcion: z.string().min(1, "Descripción es requerida"),
+    url: z.string().optional(),
+    categoria: z.string().optional(),
   })).optional(),
   
   professional_recommendations: z.array(z.object({
-    title: z.string().min(1, "Título es requerido")
+    title: z.string().min(1, "Título es requerido"),
+    subtitle: z.string().optional(),
+    cta_url: z.string().optional(),
+    cta_text: z.string().optional(),
+    display_type: z.string().optional(),
+    professional_info: z.object({
+      name: z.string().min(1, "Nombre es requerido"),
+      title: z.string().min(1, "Título profesional es requerido"),
+      approach: z.string().min(1, "Enfoque es requerido"),
+      image_url: z.string().url("URL de imagen debe ser válida"),
+      credentials: z.string().min(1, "Credenciales son requeridas"),
+      specialties: z.array(z.string().min(1, "Especialidad no puede estar vacía")),
+      experience_description: z.string().min(1, "Descripción de experiencia es requerida")
+    }).optional(),
+    position_after_section: z.string().optional()
   })).optional(),
   
   // Meta información
   meta_description: z.string().optional(),
   meta_keywords: z.string().optional(),
   canonical_url: z.string().url("URL canónica debe ser válida").optional(),
+  schema_markup: z.any().optional(),
   
   // Categorización
   category: z.enum(['desarrollo', 'comportamiento', 'emociones', 'educacion', 'familia', 'trastornos', 'otros']).optional(),

@@ -128,7 +128,6 @@ export interface BlogArticle {
   summary_points?: any | null // jsonb
   bibliography?: any | null // jsonb
   related_articles?: any | null // jsonb
-  external_links?: any | null // jsonb
   meta_description?: string | null
   meta_keywords?: string | null
   canonical_url?: string | null
@@ -216,23 +215,20 @@ export interface BlogArticleFormData {
     citation_format: string
   }>
   related_articles?: Array<{
+    slug: string
+    type: string
     title: string
-    slug?: string
-    category?: string
-    author_name?: string
-    author_image?: string
+    category: string
     image_url?: string
-    relevance?: string
-    type?: string
+    relevance: string
+    author_name: string
     description?: string
-  }>
-  external_links?: Array<{
-    url: string
-    descripcion: string
+    author_image?: string
   }>
   meta_description?: string
   meta_keywords?: string
   canonical_url?: string
+  schema_markup?: any
   category?: BlogArticleCategory
   subcategory?: string
   tags?: string[]
@@ -242,6 +238,8 @@ export interface BlogArticleFormData {
   recommended_products?: Array<{
     nombre: string
     descripcion: string
+    url?: string
+    categoria?: string
   }>
   professional_recommendations?: Array<{
     title: string

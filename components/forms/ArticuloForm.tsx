@@ -3,17 +3,25 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Save, FileText, User, Settings, Tag, BookOpen, Globe } from 'lucide-react'
+import { Save, FileText, User, Settings, Tag, BookOpen, Globe, List } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { InputWithPaste } from '@/components/ui/input-with-paste'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { TextareaWithPaste } from '@/components/ui/textarea-with-paste'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { TagInput } from './TagInput'
 import { ImageUpload } from './ImageUpload'
+import { AdditionalResourcesInput } from './AdditionalResourcesInput'
+import { FaqInput } from './FaqInput'
+import { SummaryPointsInput } from './SummaryPointsInput'
+import { BibliographyInput } from './BibliographyInput'
+import { RelatedArticlesInput } from './RelatedArticlesInput'
+import { ProfessionalRecommendationsInput } from './ProfessionalRecommendationsInput'
+import { RecommendedProductsInput } from './RecommendedProductsInput'
 import { blogArticleSchema, BLOG_CATEGORY_LABELS, BLOG_COMPLEXITY_LABELS, BLOG_STATUS_LABELS } from '@/lib/validations'
 import { generateBlogImageUrl, getFileExtension } from '@/lib/blogImageUtils'
 import type { BlogArticleFormData } from '@/types/database'
@@ -26,14 +34,14 @@ interface ArticuloFormProps {
   isEditing?: boolean
 }
 
-export default function ArticuloForm({ 
-  initialData, 
-  onSubmit, 
+export default function ArticuloForm({
+  initialData,
+  onSubmit,
   submitLabel = 'Crear Artículo',
   disabled = false,
   isEditing = false
 }: ArticuloFormProps) {
-  
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
 
   // Datos fijos del autor
@@ -79,7 +87,6 @@ export default function ArticuloForm({
       summary_points: initialData?.summary_points || [],
       bibliography: initialData?.bibliography || [],
       related_articles: initialData?.related_articles || [],
-      external_links: initialData?.external_links || [],
       meta_description: initialData?.meta_description || '',
       meta_keywords: initialData?.meta_keywords || '',
       canonical_url: initialData?.canonical_url || '',
@@ -146,16 +153,16 @@ export default function ArticuloForm({
   const updateAllSlugDependentFields = (slug: string) => {
     // 1. Actualizar URL canónica
     form.setValue('canonical_url', generateCanonicalUrl(slug))
-    
+
     // 2. Actualizar URL de imagen (solo si no estamos editando)
     if (!isEditing) {
       updateImageUrl(slug, selectedImage || undefined)
     }
-    
+
     // 3. Actualizar social_share_image si está vacía o coincide con la imagen principal
     const currentSocialImage = form.getValues('social_share_image')
     const currentImageUrl = form.getValues('image_1_url')
-    
+
     if (!currentSocialImage || currentSocialImage === currentImageUrl) {
       // La imagen social comparte la misma URL que la imagen principal
       if (slug) {
@@ -182,7 +189,7 @@ export default function ArticuloForm({
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          
+
           {/* Información Básica */}
           <Card>
             <CardHeader>
@@ -201,9 +208,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Título del Artículo *</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Título principal del artículo" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="Título principal del artículo"
+                            {...field}
                             disabled={disabled}
                             onChange={(e) => {
                               field.onChange(e)
@@ -229,9 +236,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Subtítulo</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Subtítulo descriptivo del contenido" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="Subtítulo descriptivo del contenido"
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -247,14 +254,14 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Slug URL *</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="url-amigable-del-articulo" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="url-amigable-del-articulo"
+                            {...field}
                             disabled={disabled}
                             onChange={(e) => {
                               field.onChange(e)
                               const newSlug = e.target.value
-                              
+
                               // Actualizar todos los campos dependientes del slug
                               updateAllSlugDependentFields(newSlug)
                             }}
@@ -295,9 +302,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>URL de Imagen Principal (Auto-generada)</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Se generará automáticamente basada en la fecha y slug" 
-                            {...field} 
+                          <Input
+                            placeholder="Se generará automáticamente basada en la fecha y slug"
+                            {...field}
                             disabled={true} // Siempre deshabilitado
                             className="bg-gray-50"
                           />
@@ -317,9 +324,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>URL de Imagen para Redes Sociales (Auto-generada)</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Se generará automáticamente basada en la imagen principal" 
-                            {...field} 
+                          <Input
+                            placeholder="Se generará automáticamente basada en la imagen principal"
+                            {...field}
                             disabled={true} // Siempre deshabilitado
                             className="bg-gray-50"
                           />
@@ -339,9 +346,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Texto Alternativo de Imagen</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Descripción de la imagen para accesibilidad" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="Descripción de la imagen para accesibilidad"
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -357,8 +364,8 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Tiempo de Lectura (minutos)</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
+                          <InputWithPaste
+                            type="number"
                             placeholder="ej: 7"
                             {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
@@ -390,10 +397,10 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>Introducción *</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <TextareaWithPaste
                         placeholder="Introducción del artículo con contexto y gancho inicial..."
                         className="min-h-[150px] font-mono text-sm leading-relaxed"
-                        {...field} 
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -416,9 +423,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Título de la Sección</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="ej: Lo que dice la investigación" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="ej: Lo que dice la investigación"
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -433,10 +440,10 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Contenido de Investigación</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <TextareaWithPaste
                             placeholder="Datos, estadísticas e investigación científica relevante..."
                             className="min-h-[120px] font-mono text-sm leading-relaxed"
-                            {...field} 
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -454,10 +461,10 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>Pregunta Reflexiva</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <TextareaWithPaste
                         placeholder="¿Has notado que...? ¿Te preguntas cómo...?"
                         className="min-h-[80px] font-mono text-sm leading-relaxed"
-                        {...field} 
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -480,9 +487,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Título del Caso</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="ej: Caso real (nombre modificado por privacidad)" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="ej: Caso real (nombre modificado por privacidad)"
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -497,10 +504,10 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Descripción del Caso</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <TextareaWithPaste
                             placeholder="Carmen, madre de Sofía (9 años), compartía en sesión..."
                             className="min-h-[120px] font-mono text-sm leading-relaxed"
-                            {...field} 
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -522,9 +529,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Título del Análisis *</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="ej: Análisis desde la Psicología del Desarrollo" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="ej: Análisis desde la Psicología del Desarrollo"
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -539,10 +546,10 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Contenido del Análisis *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <TextareaWithPaste
                             placeholder="Desde la psicología del desarrollo, la autoestima infantil se construye..."
                             className="min-h-[150px] font-mono text-sm leading-relaxed"
-                            {...field} 
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -564,9 +571,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Título de las Recomendaciones *</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="ej: Recomendaciones prácticas para padres" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="ej: Recomendaciones prácticas para padres"
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -581,10 +588,10 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Contenido de las Recomendaciones *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <TextareaWithPaste
                             placeholder="1. Fomenta una mentalidad de crecimiento...&#10;2. Limita el tiempo en redes sociales...&#10;3. Refuerza sus logros personales..."
                             className="min-h-[150px] font-mono text-sm leading-relaxed"
-                            {...field} 
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -602,10 +609,10 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>Llamada a la Acción</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <TextareaWithPaste
                         placeholder="Si notas que la autoestima de tu hijo se ve persistentemente afectada..."
                         className="min-h-[100px] font-mono text-sm leading-relaxed"
-                        {...field} 
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -628,9 +635,9 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Título del Cierre</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="ej: Un mensaje final" 
-                            {...field} 
+                          <InputWithPaste
+                            placeholder="ej: Un mensaje final"
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -645,10 +652,10 @@ export default function ArticuloForm({
                       <FormItem>
                         <FormLabel>Contenido del Cierre</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <TextareaWithPaste
                             placeholder="Proteger la autoestima de nuestros hijos en un mundo lleno de comparaciones..."
                             className="min-h-[120px] font-mono text-sm leading-relaxed"
-                            {...field} 
+                            {...field}
                             disabled={disabled}
                           />
                         </FormControl>
@@ -677,8 +684,8 @@ export default function ArticuloForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Categoría</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <Select
+                        onValueChange={field.onChange}
                         defaultValue={field.value}
                         disabled={disabled}
                       >
@@ -707,9 +714,9 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>Subcategoría</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="ej: autoestima-infantil" 
-                          {...field} 
+                        <InputWithPaste
+                          placeholder="ej: autoestima-infantil"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -724,8 +731,8 @@ export default function ArticuloForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Complejidad del Tema</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <Select
+                        onValueChange={field.onChange}
                         defaultValue={field.value}
                         disabled={disabled}
                       >
@@ -756,9 +763,9 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>Audiencia Objetivo</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="ej: padres, educadores, psicólogos" 
-                          {...field} 
+                        <InputWithPaste
+                          placeholder="ej: padres, educadores, psicólogos"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -774,9 +781,9 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>Rango de Edad</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="ej: 8-12 años" 
-                          {...field} 
+                        <InputWithPaste
+                          placeholder="ej: 8-12 años"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -823,10 +830,10 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>Meta Descripción</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <TextareaWithPaste
                         placeholder="Descripción breve para motores de búsqueda (máx 180 caracteres)"
                         className="min-h-[80px]"
-                        {...field} 
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -845,9 +852,9 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>Palabras Clave</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="autoestima infantil, presión social niños, desarrollo emocional" 
-                        {...field} 
+                      <InputWithPaste
+                        placeholder="autoestima infantil, presión social niños, desarrollo emocional"
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -863,9 +870,9 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>URL Canónica (Auto-generada)</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Se generará automáticamente basada en el slug" 
-                        {...field} 
+                      <Input
+                        placeholder="Se generará automáticamente basada en el slug"
+                        {...field}
                         disabled={true}
                         className="bg-gray-50"
                       />
@@ -933,10 +940,10 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>Email del Autor</FormLabel>
                       <FormControl>
-                        <Input 
+                        <InputWithPaste
                           type="email"
-                          placeholder="vinculoycrecimiento@gmail.com" 
-                          {...field} 
+                          placeholder="vinculoycrecimiento@gmail.com"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -953,10 +960,10 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>Biografía del Autor</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <TextareaWithPaste
                         placeholder="Llenia Monteagudo es graduada en psicología..."
                         className="min-h-[100px] font-mono text-sm leading-relaxed"
-                        {...field} 
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -972,9 +979,9 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>Credenciales del Autor</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Graduada en Psicología (Universidad de Barcelona), Máster en..." 
-                        {...field} 
+                      <InputWithPaste
+                        placeholder="Graduada en Psicología (Universidad de Barcelona), Máster en..."
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -990,9 +997,9 @@ export default function ArticuloForm({
                   <FormItem>
                     <FormLabel>URL Foto del Autor</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="https://ejemplo.com/autor-foto.jpg" 
-                        {...field} 
+                      <InputWithPaste
+                        placeholder="https://ejemplo.com/autor-foto.jpg"
+                        {...field}
                         disabled={disabled}
                       />
                     </FormControl>
@@ -1009,9 +1016,9 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>Twitter</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="https://twitter.com/usuario" 
-                          {...field} 
+                        <InputWithPaste
+                          placeholder="https://twitter.com/usuario"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -1027,9 +1034,9 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>LinkedIn</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="https://linkedin.com/in/usuario" 
-                          {...field} 
+                        <InputWithPaste
+                          placeholder="https://linkedin.com/in/usuario"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -1045,9 +1052,9 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>Instagram</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="https://instagram.com/usuario" 
-                          {...field} 
+                        <InputWithPaste
+                          placeholder="https://instagram.com/usuario"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -1063,9 +1070,9 @@ export default function ArticuloForm({
                     <FormItem>
                       <FormLabel>Sitio Web</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="https://sitio-web.com" 
-                          {...field} 
+                        <InputWithPaste
+                          placeholder="https://sitio-web.com"
+                          {...field}
                           disabled={disabled}
                         />
                       </FormControl>
@@ -1074,6 +1081,243 @@ export default function ArticuloForm({
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Recursos Adicionales */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                Recursos Adicionales
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="additional_resources"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <AdditionalResourcesInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* FAQ */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <List className="h-5 w-5" />
+                Preguntas Frecuentes (FAQ)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="faq_data"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FaqInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Puntos de Resumen */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <List className="h-5 w-5" />
+                Puntos de Resumen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="summary_points"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <SummaryPointsInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Bibliografía */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                Bibliografía
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="bibliography"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <BibliographyInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Artículos Relacionados */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Artículos Relacionados
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="related_articles"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <RelatedArticlesInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Recomendaciones Profesionales */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Recomendaciones Profesionales
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="professional_recommendations"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <ProfessionalRecommendationsInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Productos Recomendados */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Tag className="h-5 w-5" />
+                Productos Recomendados
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="recommended_products"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <RecommendedProductsInput
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        disabled={disabled}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Schema Markup */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Schema Markup (SEO Avanzado)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FormField
+                control={form.control}
+                name="schema_markup"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Datos Estructurados JSON-LD</FormLabel>
+                    <FormControl>
+                      <TextareaWithPaste
+                        placeholder='{"@context": "https://schema.org", "@type": "Article", ...}'
+                        value={typeof field.value === 'object' ? JSON.stringify(field.value, null, 2) : String(field.value || '')}
+                        onChange={(e) => {
+                          try {
+                            const parsed = JSON.parse(e.target.value)
+                            field.onChange(parsed)
+                          } catch {
+                            field.onChange(e.target.value)
+                          }
+                        }}
+                        disabled={disabled}
+                        className="min-h-[120px] font-mono text-sm"
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Formato JSON-LD para datos estructurados. Se generará automáticamente si se deja vacío.
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 
@@ -1093,8 +1337,8 @@ export default function ArticuloForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Estado del Artículo</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <Select
+                        onValueChange={field.onChange}
                         defaultValue={field.value}
                         disabled={disabled}
                       >
@@ -1189,8 +1433,8 @@ export default function ArticuloForm({
 
           {/* Botón de envío */}
           <div className="flex justify-end sticky bottom-4 bg-white p-4 border rounded-lg shadow-lg">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={disabled}
               className="flex items-center gap-2 px-8"
               size="lg"

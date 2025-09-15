@@ -16,12 +16,10 @@
 | 19               | call_to_action               | text                     | YES         |
 | 20               | empathetic_closing           | jsonb                    | YES         |
 | 21               | additional_resources         | text                     | YES         |
-| 22               | key_sections                 | jsonb                    | YES         |
 | 23               | faq_data                     | jsonb                    | YES         |
 | 24               | summary_points               | jsonb                    | YES         |
 | 25               | bibliography                 | jsonb                    | YES         |
 | 26               | related_articles             | jsonb                    | YES         |
-| 27               | external_links               | jsonb                    | YES         |
 | 28               | meta_description             | character varying        | YES         |
 | 29               | meta_keywords                | text                     | YES         |
 | 31               | canonical_url                | text                     | YES         |

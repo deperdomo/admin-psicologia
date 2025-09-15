@@ -24,7 +24,6 @@ export async function createArticulo(data: BlogArticleFormData): Promise<BlogArt
       summary_points: data.summary_points && data.summary_points.length > 0 ? data.summary_points : null,
       bibliography: data.bibliography && data.bibliography.length > 0 ? data.bibliography : null,
       related_articles: data.related_articles && data.related_articles.length > 0 ? data.related_articles : null,
-      external_links: data.external_links && data.external_links.length > 0 ? data.external_links : null,
       meta_description: data.meta_description || null,
       meta_keywords: data.meta_keywords || null,
       canonical_url: data.canonical_url || null,

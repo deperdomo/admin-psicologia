@@ -158,14 +158,14 @@ La **función ejecutiva** es como el *director de orquesta* del cerebro. ***Coor
 Cuando **[situación específica]**, el cerebro del niño *procesa de manera diferente*, lo que se manifiesta como **[comportamiento observable]**. Esto es ***completamente normal*** porque [razón desarrollista].
 ```
 
-### PARA DAR RECOMENDACIONES
+### PARA DAR RECOMENDACIONES (FORMATO JSON)
+```json
+{
+  "title": "Estrategias prácticas para [objetivo]",
+  "content": "1. **[Acción clave]**: [Explicación de 50-80 palabras con *énfasis* donde sea necesario]. Incluir ejemplo concreto o beneficio esperado.\n2. **[Segunda estrategia]**: [Descripción práctica]. Mencionar ***punto crítico*** si aplica.\n3. **[Tercera técnica]**: [Pasos de implementación claros]. Usar *cursiva* para citas o pensamientos.\n4. **[Cuarta recomendación]**: [Adaptaciones según edad o contexto].\n5. **[Quinta estrategia]**: [Resultado esperado y timeframe]."
+}
 ```
-Si notas que **[señal específica]**, prueba esta estrategia:\\n
-**Paso 1**: *Observa sin intervenir* durante 5 minutos\\n
-**Paso 2**: Aplica la técnica de ***validación emocional***\\n
-**Paso 3**: Ofrece **dos opciones** que sean aceptables\\n
-Deberías ver *mejoras graduales* en **2-3 semanas**.
-```
+**IMPORTANTE**: Usar \n (no \\n) entre recomendaciones en el JSON.
 
 ### PARA VALIDAR EXPERIENCIAS
 ```

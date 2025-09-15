@@ -22,7 +22,6 @@ INSERT INTO blog_articles (
   summary_points,
   bibliography,
   related_articles,
-  external_links,
   meta_description,
   meta_keywords,
   canonical_url,
@@ -208,12 +207,6 @@ INSERT INTO blog_articles (
     }
   ]'::jsonb,
   
-  -- external_links: Enlaces externos relevantes (formato JSON array)
-  '[
-    {"url": "https://www.apa.org/science/about/psa/2024/02/social-media-children", "descripcion": "Artículo de APA sobre redes sociales e infancia"},
-    {"url": "https://www.unicef.org/reports/state-worlds-children-2021", "descripcion": "Informe UNICEF sobre bienestar infantil en la era digital"}
-  ]'::jsonb,
-  
   -- meta_description: Descripción para SEO y motores de búsqueda
   'Descubre cómo la presión social afecta la autoestima infantil y estrategias basadas en evidencia para proteger el bienestar emocional de tu hijo.',
   
@@ -289,14 +282,12 @@ INSERT INTO blog_articles (
       "nombre": "Mindset: La actitud del éxito - Carol Dweck",
       "url": "https://amazon.es/dp/8417810188",
       "categoria": "libros",
-      "precio_aprox": "18.95€",
       "descripcion": "Libro fundamental sobre mentalidad de crecimiento y autoestima"
     },
     {
       "nombre": "El libro de las emociones para niños",
       "url": "https://amazon.es/dp/8448850334",
       "categoria": "libros",
-      "precio_aprox": "14.95€",
       "descripcion": "Herramienta práctica para trabajar autoestima y emociones"
     }
   ]'::jsonb,
