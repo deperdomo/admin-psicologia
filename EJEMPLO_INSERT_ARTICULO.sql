@@ -278,19 +278,28 @@ INSERT INTO blog_articles (
   
   -- recommended_products: Productos recomendados relacionados con el tema (formato JSON array)
   '[
-    {
-      "nombre": "Mindset: La actitud del éxito - Carol Dweck",
-      "url": "https://amazon.es/dp/8417810188",
-      "categoria": "libros",
-      "descripcion": "Libro fundamental sobre mentalidad de crecimiento y autoestima"
-    },
-    {
-      "nombre": "El libro de las emociones para niños",
-      "url": "https://amazon.es/dp/8448850334",
-      "categoria": "libros",
-      "descripcion": "Herramienta práctica para trabajar autoestima y emociones"
-    }
-  ]'::jsonb,
+  {
+    "url": "https://amazon.es/dp/8417057897",
+    "nombre": "El cerebro del niño en la era digital - Daniel Siegel",
+    "categoria": "libros",
+    "imagen_url": "https://m.media-amazon.com/images/I/71ZOu5+z8OL._SL1500_.jpg",
+    "descripcion": "Guía fundamental sobre neurociencia y tecnología en la infancia"
+  },
+  {
+    "url": "https://amazon.es/dp/B000J5OJBC",
+    "nombre": "Temporizador visual Time Timer para transiciones",
+    "categoria": "herramientas",
+    "imagen_url": "https://m.media-amazon.com/images/I/71ZOu5+z8OL._SL1500_.jpg",
+    "descripcion": "Herramienta visual para ayudar en las transiciones de pantallas"
+  },
+  {
+    "url": "https://amazon.es/dp/8417057889",
+    "nombre": "Crianza respetuosa - Janet Lansbury",
+    "categoria": "libros",
+    "imagen_url": "https://m.media-amazon.com/images/I/71ZOu5+z8OL._SL1500_.jpg",
+    "descripcion": "Estrategias empáticas para establecer límites con conexión emocional"
+  }
+]'::jsonb,
   
   -- professional_recommendations: Recomendaciones profesionales integradas en el contenido (formato JSON array)
   '[

@@ -23,14 +23,9 @@ export function NuevoRecursoClient() {
   const handleSubmit = async (data: RecursoFormData, wordFile?: File, pdfFile?: File) => {
     setIsSubmitting(true)
     try {
-      // Debug: Verificar usuario autenticado
-      console.log('Usuario actual:', user)
-      console.log('User ID:', user?.id)
       
       // Verificar sesión actual
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      console.log('Sesión actual:', session)
-      console.log('Error de sesión:', sessionError)
+      const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         throw new Error('No hay sesión activa')
       }

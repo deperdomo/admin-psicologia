@@ -220,6 +220,7 @@ export interface BlogArticleFormData {
     title: string
     category: string
     image_url?: string
+    image_alt?: string  // ✅ Cambiar de image_1_alt a image_alt para el formulario
     relevance: string
     author_name: string
     description?: string
@@ -240,6 +241,7 @@ export interface BlogArticleFormData {
     descripcion: string
     url?: string
     categoria?: string
+    imagen_url?: string
   }>
   professional_recommendations?: Array<{
     title: string

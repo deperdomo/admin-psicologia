@@ -1,8 +1,12 @@
 import { supabase } from './supabase'
 import type { BlogArticle, BlogArticleFormData } from '@/types/database'
 
+type RelatedArticle = NonNullable<BlogArticleFormData['related_articles']>[0]
+
 export async function createArticulo(data: BlogArticleFormData): Promise<BlogArticle> {
   try {
+    console.log('createArticulo - related_articles recibidos:', data.related_articles)
+    
     // Preparar los datos para la inserción, enviando objetos directamente como JSONB
     const insertData = {
       title: data.title,
@@ -23,7 +27,19 @@ export async function createArticulo(data: BlogArticleFormData): Promise<BlogArt
       faq_data: data.faq_data && data.faq_data.length > 0 ? data.faq_data : null,
       summary_points: data.summary_points && data.summary_points.length > 0 ? data.summary_points : null,
       bibliography: data.bibliography && data.bibliography.length > 0 ? data.bibliography : null,
-      related_articles: data.related_articles && data.related_articles.length > 0 ? data.related_articles : null,
+      related_articles: (() => {
+        if (data.related_articles && data.related_articles.length > 0) {
+          // Mapear image_alt a image_1_alt para la BD
+          const mappedArticles = data.related_articles.map(article => ({
+            ...article,
+            image_1_alt: article.image_alt, // ✅ MAPEAR image_alt a image_1_alt para BD
+            image_alt: undefined // Remover el campo image_alt ya que no existe en BD
+          }))
+          console.log('FINAL - related_articles que se insertan en BD:', JSON.stringify(mappedArticles, null, 2))
+          return mappedArticles
+        }
+        return null
+      })(),
       meta_description: data.meta_description || null,
       meta_keywords: data.meta_keywords || null,
       canonical_url: data.canonical_url || null,
@@ -50,6 +66,9 @@ export async function createArticulo(data: BlogArticleFormData): Promise<BlogArt
       reading_time_minutes: data.reading_time_minutes || null
     }
 
+    console.log('Datos a insertar en BD:', insertData)
+    console.log('related_articles que se insertarán:', insertData.related_articles)
+
     const { data: insertedData, error } = await supabase
       .from('blog_articles')
       .insert([insertData])
@@ -68,12 +87,19 @@ export async function createArticulo(data: BlogArticleFormData): Promise<BlogArt
   }
 }
 
-export async function getArticulos(): Promise<BlogArticle[]> {
+export async function getArticulos(searchTerm?: string | null): Promise<BlogArticle[]> {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('blog_articles')
       .select('*')
       .order('created_at', { ascending: false })
+
+    // Si hay término de búsqueda, aplicar filtros
+    if (searchTerm && searchTerm.trim()) {
+      query = query.or(`title.ilike.%${searchTerm}%,subtitle.ilike.%${searchTerm}%`)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       console.error('Error al obtener artículos:', error)
@@ -109,17 +135,41 @@ export async function getArticuloById(id: string): Promise<BlogArticle | null> {
 
 export async function updateArticulo(id: string, data: Partial<BlogArticleFormData>): Promise<BlogArticle> {
   try {
+    console.log('updateArticulo - related_articles recibidos:', data.related_articles)
+    
     // Preparar los datos para la actualización
-  const updateData: Record<string, unknown> = {}
+    const updateData: Record<string, unknown> = {}
 
     Object.keys(data).forEach(key => {
       const value = (data as Record<string, unknown>)[key]
       
       if (value !== undefined) {
-        // Enviar objetos directamente como JSONB (Supabase maneja esto automáticamente)
-        updateData[key] = value
+        // Log especial para related_articles
+        if (key === 'related_articles') {
+          console.log('Procesando related_articles en update:', value)
+          
+          // Mapear image_alt de vuelta a image_1_alt para la BD
+          if (Array.isArray(value)) {
+            updateData[key] = value.map((article: RelatedArticle) => ({
+              ...article,
+              image_1_alt: article.image_alt, // ✅ MAPEAR image_alt a image_1_alt para BD
+              image_alt: undefined // Remover el campo image_alt ya que no existe en BD
+            }))
+            console.log('related_articles mapeados para BD:', updateData[key])
+          } else {
+            updateData[key] = value
+          }
+        } else {
+          // Enviar otros objetos directamente como JSONB (Supabase maneja esto automáticamente)
+          updateData[key] = value
+        }
       }
     })
+
+    console.log('Datos a actualizar en BD:', updateData)
+    if (updateData.related_articles) {
+      console.log('related_articles que se actualizarán:', updateData.related_articles)
+    }
 
     // Si se está publicando, actualizar la fecha de publicación
     if (data.status === 'published' && !updateData.published_at) {

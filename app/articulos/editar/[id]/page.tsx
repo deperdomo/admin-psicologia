@@ -7,9 +7,10 @@ export const metadata: Metadata = {
 }
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default function EditarArticuloPage({ params }: Props) {
-  return <EditarArticuloClient id={params.id} />
+export default async function EditarArticuloPage({ params }: Props) {
+  const { id } = await params
+  return <EditarArticuloClient id={id} />
 }

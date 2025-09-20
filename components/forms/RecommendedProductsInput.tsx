@@ -10,6 +10,7 @@ interface RecommendedProduct {
   descripcion: string
   url?: string
   categoria?: string
+  imagen_url?: string
 }
 
 interface RecommendedProductsInputProps {
@@ -24,7 +25,8 @@ export function RecommendedProductsInput({ value, onChange, disabled }: Recommen
       nombre: '', 
       descripcion: '', 
       url: '', 
-      categoria: '', 
+      categoria: '',
+      imagen_url: ''
     }])
   }
 
@@ -105,6 +107,15 @@ export function RecommendedProductsInput({ value, onChange, disabled }: Recommen
                 placeholder="https://..."
                 value={product.url || ''}
                 onChange={(e) => updateProduct(index, 'url', e.target.value)}
+                disabled={disabled}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">URL de la Imágen</Label>
+              <InputWithPaste
+                placeholder="https://..."
+                value={product.imagen_url || ''}
+                onChange={(e) => updateProduct(index, 'imagen_url', e.target.value)}
                 disabled={disabled}
               />
             </div>

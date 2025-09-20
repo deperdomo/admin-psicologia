@@ -155,6 +155,7 @@ export const blogArticleSchema = z.object({
     title: z.string().min(1, "Título es requerido"),
     category: z.string().min(1, "Categoría es requerida"),
     image_url: z.string().optional(),
+    image_alt: z.string().optional(),  // ✅ AGREGAR image_alt al schema
     relevance: z.string().min(1, "Relevancia es requerida"),
     author_name: z.string().min(1, "Nombre del autor es requerido"),
     description: z.string().optional(),
@@ -166,6 +167,7 @@ export const blogArticleSchema = z.object({
     descripcion: z.string().min(1, "Descripción es requerida"),
     url: z.string().optional(),
     categoria: z.string().optional(),
+    imagen_url: z.string().optional(),
   })).optional(),
   
   professional_recommendations: z.array(z.object({

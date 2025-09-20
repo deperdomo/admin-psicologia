@@ -5,9 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Save, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +15,8 @@ import { TagInput } from './TagInput'
 import { FileUpload } from './FileUpload'
 import { recursoSchema, CATEGORIA_LABELS, RESOURCE_TYPE_LABELS, DIFFICULTY_LABELS } from '@/lib/validations'
 import type { RecursoFormData } from '@/types/database'
+import { TextareaWithPaste } from '../ui/textarea-with-paste'
+import { InputWithPaste } from '../ui/input-with-paste'
 
 interface RecursoFormProps {
   initialData?: Partial<RecursoFormData>
@@ -132,7 +132,7 @@ export default function RecursoForm({
                   <FormItem>
                     <FormLabel>Título *</FormLabel>
                     <FormControl>
-                      <Input
+                      <InputWithPaste
                         placeholder="Título del recurso"
                         {...field}
                         disabled={disabled}
@@ -163,7 +163,7 @@ export default function RecursoForm({
                   <FormItem>
                     <FormLabel>ID del Recurso *</FormLabel>
                     <FormControl>
-                      <Input
+                      <InputWithPaste
                         placeholder="Se genera automáticamente desde el título"
                         {...field}
                         disabled={disabled}
@@ -182,7 +182,7 @@ export default function RecursoForm({
                 <FormItem>
                   <FormLabel>Descripción *</FormLabel>
                   <FormControl>
-                    <Textarea
+                    <TextareaWithPaste
                       placeholder="Descripción detallada del recurso..."
                       className="min-h-[100px]"
                       {...field}
@@ -270,7 +270,7 @@ export default function RecursoForm({
                   <FormItem>
                     <FormLabel>Duración Estimada (minutos) *</FormLabel>
                     <FormControl>
-                      <Input
+                      <InputWithPaste
                         type="number"
                         placeholder="ej: 30"
                         {...field}

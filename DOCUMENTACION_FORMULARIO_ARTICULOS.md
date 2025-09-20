@@ -336,8 +336,8 @@ Este documento describe todos los campos, labels e inputs implementados en el fo
         "name": "Nombre del producto",
         "description": "Descripción del producto",
         "affiliate_link": "https://...",
-        "price_range": "$XX-$XX",
         "category": "books|apps|toys|therapy_tools"
+
       }
     ]
   }

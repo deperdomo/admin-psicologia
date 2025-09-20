@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useRequireAuth } from '@/lib/hooks/useRequireAuth'
 import ArticuloForm from '@/components/forms/ArticuloForm'
 import { SuccessModal } from '@/components/shared/SuccessModal'
 import { Button } from '@/components/ui/button'
@@ -14,14 +15,18 @@ interface EditarArticuloClientProps {
 }
 
 export default function EditarArticuloClient({ id }: EditarArticuloClientProps) {
+  const { user } = useRequireAuth()
   const router = useRouter()
   const [articulo, setArticulo] = useState<BlogArticle | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
 
+  // Cargar el artículo
   useEffect(() => {
     const fetchArticulo = async () => {
+      if (!id || !user) return
+
       try {
         const response = await fetch(`/api/articulos/${id}`)
         if (!response.ok) {
@@ -40,14 +45,13 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
     }
 
     fetchArticulo()
-  }, [id, router])
+  }, [id, router, user])
 
   const handleSubmit = async (data: BlogArticleFormData, imageFile?: File) => {
     setIsSubmitting(true)
     try {
       // Si hay una nueva imagen, subirla primero
       if (imageFile && data.slug) {
-        console.log('Subiendo nueva imagen...')
         const uploadResult = await uploadBlogImage(imageFile, data.slug)
         
         if (!uploadResult.success) {
@@ -56,7 +60,6 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
         
         // Actualizar la URL de la imagen en los datos
         data.image_1_url = uploadResult.publicUrl
-        console.log('Imagen subida exitosamente:', uploadResult.publicUrl)
       }
 
       const response = await fetch(`/api/articulos/${id}`, {
@@ -89,7 +92,7 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
 
   // Convertir datos del artículo al formato del formulario
   const convertToFormData = (articulo: BlogArticle): Partial<BlogArticleFormData> => {
-    return {
+    const formData = {
       title: articulo.title,
       subtitle: articulo.subtitle || '',
       slug: articulo.slug,
@@ -105,21 +108,34 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
       call_to_action: articulo.call_to_action || '',
       empathetic_closing: articulo.empathetic_closing || { title: '', content: '' },
       additional_resources: [],
-      faq_data: articulo.faq_data || [],
-      summary_points: articulo.summary_points || [],
-      bibliography: articulo.bibliography || [],
-      related_articles: articulo.related_articles || [],
+      faq_data: Array.isArray(articulo.faq_data) ? articulo.faq_data : [],
+      summary_points: Array.isArray(articulo.summary_points) ? articulo.summary_points : [],
+      bibliography: Array.isArray(articulo.bibliography) ? articulo.bibliography : [],
+      related_articles: Array.isArray(articulo.related_articles) 
+        ? articulo.related_articles.map(article => ({
+            slug: article.slug || '',
+            type: article.type || 'internal',
+            title: article.title || '',
+            category: article.category || '',
+            image_url: article.image_url || '',
+            image_alt: article.image_1_alt || '', // ✅ Mapear desde image_1_alt de BD a image_alt del formulario
+            relevance: article.relevance || 'medium',
+            author_name: article.author_name || '',
+            description: article.description || '',
+            author_image: article.author_image || ''
+          }))
+        : [],
       meta_description: articulo.meta_description || '',
       meta_keywords: articulo.meta_keywords || '',
       canonical_url: articulo.canonical_url || '',
       category: articulo.category || undefined,
       subcategory: articulo.subcategory || '',
-      tags: articulo.tags || [],
+      tags: Array.isArray(articulo.tags) ? articulo.tags : [],
       target_audience: articulo.target_audience || '',
       age_range: articulo.age_range || '',
       topic_complexity: articulo.topic_complexity || undefined,
-      recommended_products: articulo.recommended_products || [],
-      professional_recommendations: articulo.professional_recommendations || [],
+      recommended_products: Array.isArray(articulo.recommended_products) ? articulo.recommended_products : [],
+      professional_recommendations: Array.isArray(articulo.professional_recommendations) ? articulo.professional_recommendations : [],
       author_name: articulo.author_name,
       author_email: articulo.author_email || '',
       author_bio: articulo.author_bio || '',
@@ -137,6 +153,7 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
       is_professional_content: articulo.is_professional_content || false,
       reading_time_minutes: articulo.reading_time_minutes || undefined
     }
+    return formData
   }
 
   if (isLoading) {

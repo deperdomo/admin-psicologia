@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useRequireAuth } from '@/lib/hooks/useRequireAuth'
 import ArticuloForm from '@/components/forms/ArticuloForm'
 import { SuccessModal } from '@/components/shared/SuccessModal'
 import { Button } from '@/components/ui/button'
@@ -10,29 +11,32 @@ import { uploadBlogImage } from '@/lib/imageUpload'
 import type { BlogArticleFormData } from '@/types/database'
 
 export default function NuevoArticuloClient() {
+  const { user, loading } = useRequireAuth();
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
 
+  if (loading) return <div>Cargando...</div>;
+  if (!user) return null;
+
   const handleSubmit = async (data: BlogArticleFormData, imageFile?: File) => {
     setIsLoading(true)
     try {
-      console.log('Datos del artículo a enviar:', data)
-      
+      console.log('Datos a enviar:', data)
+      console.log('Related articles:', data.related_articles)
+
       // Si hay una imagen, subirla primero
       if (imageFile && data.slug) {
-        console.log('Subiendo imagen...')
         const uploadResult = await uploadBlogImage(imageFile, data.slug)
-        
+
         if (!uploadResult.success) {
           throw new Error(uploadResult.error || 'Error al subir la imagen')
         }
-        
+
         // Actualizar la URL de la imagen en los datos
         data.image_1_url = uploadResult.publicUrl
-        console.log('Imagen subida exitosamente:', uploadResult.publicUrl)
       }
-      
+
       const response = await fetch('/api/articulos', {
         method: 'POST',
         headers: {
@@ -47,7 +51,7 @@ export default function NuevoArticuloClient() {
       }
 
       setShowSuccessModal(true)
-      
+
     } catch (error) {
       console.error('Error al crear el artículo:', error)
       alert(error instanceof Error ? error.message : 'Error al crear el artículo')

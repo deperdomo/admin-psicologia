@@ -4,10 +4,11 @@ import type { BlogArticleFormData } from '@/types/database'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const articulo = await getArticuloById(params.id)
+    const { id } = await params
+    const articulo = await getArticuloById(id)
     
     if (!articulo) {
       return NextResponse.json(
@@ -28,10 +29,15 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const data: Partial<BlogArticleFormData> = await request.json()
+
+    // Log para debug
+    console.log('Datos recibidos en PUT API:', data)
+    console.log('Related articles recibidos en PUT:', data.related_articles)
 
     // Validaciones básicas si se están actualizando campos obligatorios
     if (data.title !== undefined && !data.title) {
@@ -50,7 +56,7 @@ export async function PUT(
 
     // Verificar si el slug ya existe (excluyendo el artículo actual)
     if (data.slug) {
-      const slugExists = await checkSlugExists(data.slug, params.id)
+      const slugExists = await checkSlugExists(data.slug, id)
       if (slugExists) {
         return NextResponse.json(
           { error: 'Ya existe un artículo con ese slug. Por favor, usa uno diferente.' },
@@ -66,7 +72,7 @@ export async function PUT(
       )
     }
 
-    const articulo = await updateArticulo(params.id, data)
+    const articulo = await updateArticulo(id, data)
     return NextResponse.json(articulo)
   } catch (error) {
     console.error('Error en PUT /api/articulos/[id]:', error)
@@ -79,10 +85,11 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await deleteArticulo(params.id)
+    const { id } = await params
+    await deleteArticulo(id)
     return NextResponse.json({ message: 'Artículo eliminado exitosamente' })
   } catch (error) {
     console.error('Error en DELETE /api/articulos/[id]:', error)

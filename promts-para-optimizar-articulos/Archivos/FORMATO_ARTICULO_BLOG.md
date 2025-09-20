@@ -192,31 +192,25 @@ Padres, educadores, psicólogos
 ```
 
 ### 6. RECURSOS ADICIONALES
-
-```json
-{
-  "recursos_adicionales": [
-    {
-      "tipo": "libro",
-      "titulo": "El cerebro del niño",
-      "autor": "Daniel J. Siegel y Tina Payne Bryson",
-      "url": "https://ejemplo.com/libro1"
-    },
-    {
-      "tipo": "articulo",
-      "titulo": "Neuroplasticidad en el desarrollo infantil",
-      "autor": "García, M. et al.",
-      "url": "https://doi.org/10.1234/ejemplo"
-    },
-    {
-      "tipo": "herramienta",
-      "titulo": "Calendario de rutinas visuales descargable",
-      "autor": "Vínculo y Crecimiento",
-      "url": "https://ejemplo.com/descarga"
-    }
-  ]
-}
+#### Recurso 1
+**Tipo**:
 ```
+libro
+```
+**Título**:
+```
+El cerebro del niño
+```
+**Autor**:
+```
+Daniel J. Siegel y Tina Payne Bryson
+```
+**URL**:
+```
+https://ejemplo.com/libro1
+```
+agregaras tantos recursos como sean necesarios, pero al menos 3, continuaras separando los recursos con los títulos #### Recurso 2, #### Recurso 3...
+
 
 ### 7. PREGUNTAS FRECUENTES
 
@@ -368,9 +362,14 @@ libros
 ```
 https://amazon.es/dp/8417810188
 ```
+**URL de la imagen**:
+```
+https://m.media-amazon.com/images/I/71ZOu5+z8OL._SL1500_.jpg
+```
 **Descripción**:
 ```Libro fundamental sobre mentalidad de crecimiento y autoestima
 ```
+
 #### Producto 2
 **Nombre del Producto**:
 ```
@@ -384,11 +383,15 @@ libros
 ```
 https://amazon.es/dp/8448850334
 ```
+**URL de la imagen**:
+```
+https://m.media-amazon.com/images/I/71ZOu5+z8OL._SL1500_.jpg
+```
 **Descripción**:
 ```
 Herramienta práctica para trabajar autoestima y emociones
 ```
-pondraras tantos productos como sean necesarios, pero al menos 3, continuaras separando los productos con los títulos #### Producto 3, #### Producto 4...
+agregaras tantos productos como sean necesarios, pero al menos 3, continuaras separando los productos con los títulos #### Producto 3, #### Producto 4...
 
 ### 12. SCHEMA MARKUP
 

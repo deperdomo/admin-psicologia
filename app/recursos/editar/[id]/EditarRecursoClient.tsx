@@ -32,7 +32,6 @@ export default function EditarRecursoClient() {
       try {
         setLoading(true)
         setError(null)
-        console.log('Cargando recurso para editar:', resourceId)
         
         const data = await getRecursoById(resourceId)
         if (!data) {
@@ -40,7 +39,6 @@ export default function EditarRecursoClient() {
           return
         }
         
-        console.log('Recurso cargado:', data)
         setRecurso(data)
       } catch (err) {
         console.error('Error al cargar recurso:', err)
@@ -58,7 +56,6 @@ export default function EditarRecursoClient() {
 
     setIsSubmitting(true)
     try {
-      console.log('Actualizando recurso:', recurso.id, 'con datos:', data)
 
       // Verificar si el resource_id cambió y si ya existe
       if (data.resource_id !== recurso.resource_id) {
@@ -75,7 +72,6 @@ export default function EditarRecursoClient() {
 
       // Actualizar el recurso
       const updatedRecurso = await updateRecurso(recurso.id, data, wordFile, pdfFile)
-      console.log('Recurso actualizado:', updatedRecurso)
 
       // Actualizar el estado local
       setRecurso(updatedRecurso)

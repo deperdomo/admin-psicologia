@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createArticulo, getArticulos, checkSlugExists } from '@/lib/articulos'
 import type { BlogArticleFormData } from '@/types/database'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const articulos = await getArticulos()
+    const { searchParams } = new URL(request.url)
+    const search = searchParams.get('search')
+    
+    const articulos = await getArticulos(search)
     return NextResponse.json(articulos)
   } catch (error) {
     console.error('Error en GET /api/articulos:', error)
@@ -18,6 +21,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const data: BlogArticleFormData = await request.json()
+    
+    // Log para debug
+    console.log('Datos recibidos en API:', data)
+    console.log('Related articles recibidos:', data.related_articles)
 
     // Validaciones básicas
     if (!data.title || !data.slug) {

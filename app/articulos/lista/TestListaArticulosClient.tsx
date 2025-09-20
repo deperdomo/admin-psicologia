@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useRequireAuth } from '@/lib/hooks/useRequireAuth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -25,13 +24,208 @@ import {
 } from 'lucide-react'
 import type { BlogArticle } from '@/types/database'
 
-export default function ListaArticulosClient() {
-  const { user } = useRequireAuth()
+// Mock data for testing
+const mockArticulos: BlogArticle[] = [
+  {
+    id: '1',
+    title: 'Cómo ayudar a los niños con ansiedad',
+    subtitle: 'Estrategias efectivas para padres y educadores',
+    slug: 'ayudar-ninos-ansiedad',
+    author_name: 'Dr. María González',
+    category: 'emociones',
+    status: 'published',
+    tags: ['ansiedad', 'niños', 'estrategias'],
+    created_at: '2024-01-15T10:00:00Z',
+    reading_time_minutes: 8,
+    is_featured: true,
+    is_trending: false,
+    image_1_url: null,
+    image_1_alt: null,
+    social_share_image: null,
+    introduction: 'La ansiedad en niños es más común de lo que pensamos...',
+    current_data_research: null,
+    reflective_question: null,
+    anonymous_case: null,
+    psychological_analysis: { content: 'Análisis psicológico...' },
+    practical_recommendations: { content: 'Recomendaciones prácticas...' },
+    call_to_action: null,
+    empathetic_closing: null,
+    additional_resources: null,
+    faq_data: null,
+    summary_points: null,
+    bibliography: null,
+    related_articles: null,
+    meta_description: null,
+    meta_keywords: null,
+    canonical_url: null,
+    schema_markup: null,
+    subcategory: null,
+    target_audience: null,
+    age_range: null,
+    topic_complexity: null,
+    recommended_products: null,
+    professional_recommendations: null,
+    author_email: null,
+    author_bio: null,
+    author_credentials: null,
+    author_photo_url: null,
+    author_social_links: null,
+    published_at: '2024-01-15T10:00:00Z',
+    is_professional_content: false,
+    updated_at: '2024-01-15T10:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'Desarrollo emocional en la primera infancia',
+    subtitle: null,
+    slug: 'desarrollo-emocional-primera-infancia',
+    author_name: 'Lic. Carlos Ruiz',
+    category: 'desarrollo',
+    status: 'draft',
+    tags: ['desarrollo', 'emociones', 'primera infancia'],
+    created_at: '2024-01-10T14:30:00Z',
+    reading_time_minutes: 12,
+    is_featured: false,
+    is_trending: true,
+    image_1_url: null,
+    image_1_alt: null,
+    social_share_image: null,
+    introduction: 'El desarrollo emocional es fundamental...',
+    current_data_research: null,
+    reflective_question: null,
+    anonymous_case: null,
+    psychological_analysis: { content: 'Análisis psicológico...' },
+    practical_recommendations: { content: 'Recomendaciones prácticas...' },
+    call_to_action: null,
+    empathetic_closing: null,
+    additional_resources: null,
+    faq_data: null,
+    summary_points: null,
+    bibliography: null,
+    related_articles: null,
+    meta_description: null,
+    meta_keywords: null,
+    canonical_url: null,
+    schema_markup: null,
+    subcategory: null,
+    target_audience: null,
+    age_range: null,
+    topic_complexity: null,
+    recommended_products: null,
+    professional_recommendations: null,
+    author_email: null,
+    author_bio: null,
+    author_credentials: null,
+    author_photo_url: null,
+    author_social_links: null,
+    published_at: null,
+    is_professional_content: false,
+    updated_at: '2024-01-10T14:30:00Z'
+  },
+  {
+    id: '3',
+    title: 'Problemas de comportamiento en el aula',
+    subtitle: 'Estrategias para maestros y padres',
+    slug: 'problemas-comportamiento-aula',
+    author_name: 'Dra. Ana López',
+    category: 'comportamiento',
+    status: 'published',
+    tags: ['comportamiento', 'educación', 'aula'],
+    created_at: '2024-01-05T09:15:00Z',
+    reading_time_minutes: 15,
+    is_featured: false,
+    is_trending: false,
+    image_1_url: null,
+    image_1_alt: null,
+    social_share_image: null,
+    introduction: 'Los problemas de comportamiento en el aula...',
+    current_data_research: null,
+    reflective_question: null,
+    anonymous_case: null,
+    psychological_analysis: { content: 'Análisis psicológico...' },
+    practical_recommendations: { content: 'Recomendaciones prácticas...' },
+    call_to_action: null,
+    empathetic_closing: null,
+    additional_resources: null,
+    faq_data: null,
+    summary_points: null,
+    bibliography: null,
+    related_articles: null,
+    meta_description: null,
+    meta_keywords: null,
+    canonical_url: null,
+    schema_markup: null,
+    subcategory: null,
+    target_audience: null,
+    age_range: null,
+    topic_complexity: null,
+    recommended_products: null,
+    professional_recommendations: null,
+    author_email: null,
+    author_bio: null,
+    author_credentials: null,
+    author_photo_url: null,
+    author_social_links: null,
+    published_at: '2024-01-05T09:15:00Z',
+    is_professional_content: false,
+    updated_at: '2024-01-05T09:15:00Z'
+  },
+  {
+    id: '4',
+    title: 'Trastornos del espectro autista en niños',
+    subtitle: 'Guía completa para familias',
+    slug: 'trastornos-espectro-autista-ninos',
+    author_name: 'Dr. Miguel Torres',
+    category: 'trastornos',
+    status: 'archived',
+    tags: ['autismo', 'trastornos', 'desarrollo'],
+    created_at: '2023-12-20T16:45:00Z',
+    reading_time_minutes: 20,
+    is_featured: false,
+    is_trending: false,
+    image_1_url: null,
+    image_1_alt: null,
+    social_share_image: null,
+    introduction: 'El espectro autista abarca...',
+    current_data_research: null,
+    reflective_question: null,
+    anonymous_case: null,
+    psychological_analysis: { content: 'Análisis psicológico...' },
+    practical_recommendations: { content: 'Recomendaciones prácticas...' },
+    call_to_action: null,
+    empathetic_closing: null,
+    additional_resources: null,
+    faq_data: null,
+    summary_points: null,
+    bibliography: null,
+    related_articles: null,
+    meta_description: null,
+    meta_keywords: null,
+    canonical_url: null,
+    schema_markup: null,
+    subcategory: null,
+    target_audience: null,
+    age_range: null,
+    topic_complexity: null,
+    recommended_products: null,
+    professional_recommendations: null,
+    author_email: null,
+    author_bio: null,
+    author_credentials: null,
+    author_photo_url: null,
+    author_social_links: null,
+    published_at: '2023-12-20T16:45:00Z',
+    is_professional_content: true,
+    updated_at: '2023-12-20T16:45:00Z'
+  }
+]
+
+export default function TestListaArticulosClient() {
   const router = useRouter()
 
-  const [articulos, setArticulos] = useState<BlogArticle[]>([])
+  const [articulos] = useState<BlogArticle[]>(mockArticulos)
   const [filteredArticulos, setFilteredArticulos] = useState<BlogArticle[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState<string>('todos')
   const [selectedCategory, setSelectedCategory] = useState<string>('todas')
@@ -40,9 +234,8 @@ export default function ListaArticulosClient() {
   const [articuloToDelete, setArticuloToDelete] = useState<BlogArticle | null>(null)
 
   useEffect(() => {
-    if (!user) return
-    fetchArticulos()
-  }, [user])
+    setFilteredArticulos(mockArticulos)
+  }, [])
 
   useEffect(() => {
     let filtered = articulos
@@ -69,22 +262,6 @@ export default function ListaArticulosClient() {
     setFilteredArticulos(filtered)
   }, [articulos, searchTerm, selectedStatus, selectedCategory])
 
-
-  const fetchArticulos = async () => {
-    try {
-      const response = await fetch('/api/articulos')
-      if (!response.ok) throw new Error('Error al cargar artículos')
-
-      const data = await response.json()
-      setArticulos(data)
-    } catch (error) {
-      console.error('Error:', error)
-      alert('Error al cargar los artículos')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const handleDeleteClick = (articulo: BlogArticle) => {
     setArticuloToDelete(articulo)
     setDeleteModalOpen(true)
@@ -92,23 +269,10 @@ export default function ListaArticulosClient() {
 
   const confirmDelete = async () => {
     if (!articuloToDelete) return
-
-    try {
-      const response = await fetch(`/api/articulos/${articuloToDelete.id}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) throw new Error('Error al eliminar artículo')
-
-      setSuccessModalOpen(true)
-      await fetchArticulos() // Recargar lista
-    } catch (error) {
-      console.error('Error:', error)
-      alert('Error al eliminar el artículo')
-    } finally {
-      setDeleteModalOpen(false)
-      setArticuloToDelete(null)
-    }
+    // Mock delete
+    setSuccessModalOpen(true)
+    setDeleteModalOpen(false)
+    setArticuloToDelete(null)
   }
 
   const formatDate = (dateString: string) => {
@@ -174,9 +338,9 @@ export default function ListaArticulosClient() {
             Volver al Inicio
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Lista de Artículos</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Lista de Artículos (Test)</h1>
             <p className="text-muted-foreground">
-              Gestiona los artículos del blog de psicología infantil
+              Versión de prueba para testear filtros
             </p>
           </div>
         </div>

@@ -12,6 +12,7 @@ interface RelatedArticle {
   title: string
   category: string
   image_url?: string
+  image_alt?: string  // ✅ Cambiar de image_1_alt a image_alt
   relevance: string
   author_name: string
   description?: string
@@ -25,6 +26,9 @@ interface ArticleOption {
   category: string
   author_name: string
   image_url?: string
+  image_alt?: string  // ✅ Corregido de image_1_alt a image_alt
+  description?: string
+  author_image?: string
 }
 
 interface RelatedArticlesInputProps {
@@ -46,14 +50,25 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
       const response = await fetch(`/api/articulos?search=${encodeURIComponent(term)}`)
       if (response.ok) {
         const articles = await response.json()
-        return articles.map((article: Record<string, unknown>) => ({
-          id: article.id,
-          title: article.title,
-          slug: article.slug,
-          category: article.category,
-          author_name: article.author_name,
-          image_url: article.image_1_url
-        }))
+
+        return articles.map((article: Record<string, unknown>) => {
+          
+          const mappedArticle = {
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            category: article.category,
+            author_name: article.author_name,
+            image_url: article.image_1_url,
+            image_alt: article.image_1_alt,  // ✅ Mapear image_1_alt (BD) a image_alt (componente)
+            author_image: article.author_photo_url,
+            description: article.subtitle
+          }
+          
+          console.log('Artículo mapeado para componente:', mappedArticle)
+          console.log('image_alt mapeado:', mappedArticle.image_alt)
+          return mappedArticle
+        })
       }
     } catch (error) {
       console.error('Error searching articles:', error)
@@ -75,17 +90,39 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
   }, [searchTerm])
 
   const addArticle = () => {
-    onChange([...value, {
+    const newArticle = {
       slug: '',
       type: 'internal',
       title: '',
       category: '',
       image_url: '',
+      image_alt: '',  // ✅ Corregido de image_1_alt a image_alt
       relevance: 'medium',
       author_name: '',
       description: '',
       author_image: ''
-    }])
+    }
+    console.log('🔵 addArticle - Adding new EMPTY article:', newArticle)
+    onChange([...value, newArticle])
+  }
+
+  const addArticleFromSearch = (selectedArticle: ArticleOption) => {
+    const newArticleData = {
+      slug: selectedArticle.slug,
+      type: 'internal',
+      title: selectedArticle.title,
+      category: selectedArticle.category,
+      image_url: selectedArticle.image_url || '',
+      image_alt: selectedArticle.image_alt || '',
+      relevance: 'medium',
+      author_name: selectedArticle.author_name,
+      description: selectedArticle.description || '',
+      author_image: selectedArticle.author_image || ''
+    }
+    console.log('🟢 addArticleFromSearch - Adding article from search:', newArticleData)
+    onChange([...value, newArticleData])
+    setSearchTerm('')
+    setArticleOptions([])
   }
 
   const removeArticle = (index: number) => {
@@ -96,22 +133,6 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
     const updated = [...value]
     updated[index] = { ...updated[index], [field]: newValue }
     onChange(updated)
-  }
-
-  const selectArticleFromSearch = (index: number, selectedArticle: ArticleOption) => {
-    const updated = [...value]
-    updated[index] = {
-      ...updated[index],
-      title: selectedArticle.title,
-      slug: selectedArticle.slug,
-      category: selectedArticle.category,
-      author_name: selectedArticle.author_name,
-      image_url: selectedArticle.image_url || '',
-      type: 'internal'
-    }
-    onChange(updated)
-    setSearchTerm('')
-    setArticleOptions([])
   }
 
   return (
@@ -129,7 +150,51 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
           Agregar Artículo
         </Button>
       </div>
+
+      {/* Buscador Global - Arriba de todo */}
+      <Card className="p-4 bg-blue-50/50 border-blue-200">
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-blue-800">🔍 Buscar y Agregar Artículo Existente</Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <InputWithPaste
+              placeholder="Buscar por título para agregar automáticamente..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              disabled={disabled}
+              className="pl-9"
+            />
+          </div>
+          
+          {articleOptions.length > 0 && (
+            <div className="border rounded-md max-h-40 overflow-y-auto bg-white">
+              {articleOptions.map((option) => (
+                <div
+                  key={option.id}
+                  className="p-3 hover:bg-blue-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                  onClick={() => addArticleFromSearch(option)}
+                >
+                  <div className="font-medium text-sm text-blue-900">{option.title}</div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    {option.category} • {option.author_name}
+                  </div>
+                  {option.description && (
+                    <div className="text-xs text-gray-600 mt-1 line-clamp-2">{option.description}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {searchTerm && articleOptions.length === 0 && (
+            <div className="text-sm text-gray-500 text-center py-2">
+              No se encontraron artículos con &quot;{searchTerm}&quot;
+            </div>
+          )}
+        </div>
+      </Card>
       
+      {/* Lista de Artículos Agregados */}
       {value.map((article, index) => (
         <Card key={index} className="p-4">
           <div className="space-y-4">
@@ -144,38 +209,6 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
               >
                 <X className="h-4 w-4" />
               </Button>
-            </div>
-
-            {/* Búsqueda de artículos */}
-            <div className="space-y-2">
-              <Label className="text-xs">Buscar artículo existente</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <InputWithPaste
-                  placeholder="Buscar por título..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  disabled={disabled}
-                  className="pl-9"
-                />
-              </div>
-              
-              {articleOptions.length > 0 && (
-                <div className="border rounded-md max-h-40 overflow-y-auto">
-                  {articleOptions.map((option) => (
-                    <div
-                      key={option.id}
-                      className="p-2 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                      onClick={() => selectArticleFromSearch(index, option)}
-                    >
-                      <div className="font-medium text-sm">{option.title}</div>
-                      <div className="text-xs text-gray-500">
-                        {option.category} • {option.author_name}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Campos manuales */}
@@ -270,13 +303,33 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
                 disabled={disabled}
               />
             </div>
+
+            <div>
+              <Label className="text-xs">Texto alternativo de la imagen</Label>
+              <InputWithPaste
+                placeholder="Descripción de la imagen"
+                value={article.image_alt || ''}
+                onChange={(e) => updateArticle(index, 'image_alt', e.target.value)}
+                disabled={disabled}
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs">URL de imagen del autor</Label>
+              <InputWithPaste
+                placeholder="https://..."
+                value={article.author_image || ''}
+                onChange={(e) => updateArticle(index, 'author_image', e.target.value)}
+                disabled={disabled}
+              />
+            </div>
           </div>
         </Card>
       ))}
       
       {value.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
-          <p>No hay artículos relacionados. Haz clic en &quot;Agregar Artículo&quot; para empezar.</p>
+          <p>No hay artículos relacionados. Usa el buscador arriba o haz clic en &quot;Agregar Artículo&quot; para empezar.</p>
         </div>
       )}
     </div>
