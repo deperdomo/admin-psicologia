@@ -7,7 +7,7 @@ import ArticuloForm from '@/components/forms/ArticuloForm'
 import { SuccessModal } from '@/components/shared/SuccessModal'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
-import { uploadBlogImage } from '@/lib/imageUpload'
+import { uploadOptimizedImage } from '@/lib/imageUploadClient'
 import type { BlogArticle, BlogArticleFormData } from '@/types/database'
 
 interface EditarArticuloClientProps {
@@ -52,7 +52,7 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
     try {
       // Si hay una nueva imagen, subirla primero
       if (imageFile && data.slug) {
-        const uploadResult = await uploadBlogImage(imageFile, data.slug)
+        const uploadResult = await uploadOptimizedImage(imageFile, data.slug)
         
         if (!uploadResult.success) {
           throw new Error(uploadResult.error || 'Error al subir la imagen')

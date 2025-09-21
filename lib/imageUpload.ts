@@ -1,11 +1,19 @@
 import { supabase } from './supabase'
-import { generateStoragePath, getFileExtension } from './blogImageUtils'
+import { generateStoragePath } from './blogImageUtils'
+import { optimizeImageForUpload } from './imageOptimization'
 
 export interface UploadImageResult {
   success: boolean
   publicUrl?: string
   error?: string
   path?: string
+  optimizationStats?: {
+    originalSize: number
+    optimizedSize: number
+    compressionRatio: number
+    originalFilename: string
+    optimizedFilename: string
+  }
 }
 
 /**
@@ -72,6 +80,7 @@ async function ensureBlogImagesBucketExists(): Promise<boolean> {
 
 /**
  * Sube una imagen al bucket de blog-images en Supabase Storage
+ * La imagen se optimiza automáticamente a WebP antes de la subida
  */
 export async function uploadBlogImage(
   file: File, 
@@ -86,7 +95,7 @@ export async function uploadBlogImage(
       }
     }
 
-    // Validar el tamaño (máximo 5MB)
+    // Validar el tamaño (máximo 5MB para el archivo original)
     const maxSize = 5 * 1024 * 1024 // 5MB
     if (file.size > maxSize) {
       return {
@@ -95,16 +104,36 @@ export async function uploadBlogImage(
       }
     }
 
-    // Generar el path de almacenamiento
-    const fileExtension = getFileExtension(file.name)
-    const storagePath = generateStoragePath(slug, fileExtension)
+    // Optimizar la imagen a WebP
+    console.log('Optimizando imagen...', { 
+      originalName: file.name, 
+      originalSize: file.size 
+    })
+    
+    const { optimizedFile, stats } = await optimizeImageForUpload(file, {
+      quality: 85, // Calidad alta pero optimizada
+      maxWidth: 1200, // Ancho máximo para artículos de blog
+      maxHeight: 800, // Alto máximo
+      format: 'webp'
+    })
 
-    // Intentar subir directamente, ya que el bucket debería existir
-    console.log('Subiendo imagen a:', storagePath)
+    console.log('Imagen optimizada:', {
+      originalSize: stats.originalSize,
+      optimizedSize: stats.optimizedSize,
+      compressionRatio: stats.compressionRatio.toFixed(2) + '%',
+      originalFilename: stats.originalFilename,
+      optimizedFilename: stats.optimizedFilename
+    })
+
+    // Generar el path de almacenamiento usando la extensión WebP
+    const storagePath = generateStoragePath(slug, 'webp')
+
+    // Intentar subir directamente la imagen optimizada, ya que el bucket debería existir
+    console.log('Subiendo imagen optimizada a:', storagePath)
     
     const { error: uploadError } = await supabase.storage
       .from('blog-images')
-      .upload(storagePath, file, {
+      .upload(storagePath, optimizedFile, {
         cacheControl: '3600',
         upsert: true // Sobrescribir si existe
       })
@@ -126,10 +155,10 @@ export async function uploadBlogImage(
           }
         }
 
-        // Reintentar la subida
+        // Reintentar la subida con la imagen optimizada
         const { error: retryError } = await supabase.storage
           .from('blog-images')
-          .upload(storagePath, file, {
+          .upload(storagePath, optimizedFile, {
             cacheControl: '3600',
             upsert: true
           })
@@ -149,7 +178,8 @@ export async function uploadBlogImage(
         return {
           success: true,
           publicUrl: publicUrlData.publicUrl,
-          path: storagePath
+          path: storagePath,
+          optimizationStats: stats
         }
       }
 
@@ -167,7 +197,8 @@ export async function uploadBlogImage(
     return {
       success: true,
       publicUrl: publicUrlData.publicUrl,
-      path: storagePath
+      path: storagePath,
+      optimizationStats: stats
     }
 
   } catch (error) {

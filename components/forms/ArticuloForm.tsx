@@ -23,7 +23,7 @@ import { RelatedArticlesInput } from './RelatedArticlesInput'
 import { ProfessionalRecommendationsInput } from './ProfessionalRecommendationsInput'
 import { RecommendedProductsInput } from './RecommendedProductsInput'
 import { blogArticleSchema, BLOG_CATEGORY_LABELS, BLOG_COMPLEXITY_LABELS, BLOG_STATUS_LABELS } from '@/lib/validations'
-import { generateBlogImageUrl, getFileExtension } from '@/lib/blogImageUtils'
+import { generateBlogImageUrl } from '@/lib/blogImageUtils'
 import type { BlogArticleFormData } from '@/types/database'
 
 interface ArticuloFormProps {
@@ -140,10 +140,10 @@ export default function ArticuloForm({
   }
 
   // Actualizar URL de imagen cuando cambie el slug o se seleccione una imagen
-  const updateImageUrl = (slug: string, imageFile?: File) => {
+  const updateImageUrl = (slug: string) => {
     if (slug) {
-      const extension = imageFile ? getFileExtension(imageFile.name) : 'png'
-      const fileName = `${slug}.${extension}`
+      // Siempre usar extensión .webp ya que todas las imágenes se optimizan a este formato
+      const fileName = `${slug}.webp`
       const imageUrl = generateBlogImageUrl(slug, fileName)
       form.setValue('image_1_url', imageUrl)
     }
@@ -156,7 +156,7 @@ export default function ArticuloForm({
 
     // 2. Actualizar URL de imagen (solo si no estamos editando)
     if (!isEditing) {
-      updateImageUrl(slug, selectedImage || undefined)
+      updateImageUrl(slug)
     }
 
     // 3. Actualizar social_share_image si está vacía o coincide con la imagen principal
@@ -166,8 +166,8 @@ export default function ArticuloForm({
     if (!currentSocialImage || currentSocialImage === currentImageUrl) {
       // La imagen social comparte la misma URL que la imagen principal
       if (slug) {
-        const extension = selectedImage ? getFileExtension(selectedImage.name) : 'png'
-        const fileName = `${slug}.${extension}`
+        // Siempre usar extensión .webp ya que todas las imágenes se optimizan a este formato
+        const fileName = `${slug}.webp`
         const imageUrl = generateBlogImageUrl(slug, fileName)
         form.setValue('social_share_image', imageUrl)
       }
