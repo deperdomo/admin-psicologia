@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { PlusCircle, List, FileText } from 'lucide-react'
+import { PlusCircle, List, FileText, Calendar, CalendarOff } from 'lucide-react'
 import HomeAuthClient from './HomeAuthClient'
 
 export default function HomePage() {
@@ -8,11 +8,11 @@ export default function HomePage() {
       <div className="space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Sistema de Administración de Recursos
+            Panel de Administración - Psicología Infantil
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Gestiona y administra recursos de psicología de manera eficiente. 
-            Sube documentos, organiza por categorías y mantén todo centralizado.
+            Gestiona recursos, artículos y citas de manera eficiente. 
+            Todo centralizado en un solo lugar.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6 mt-12">
@@ -62,6 +62,34 @@ export default function HomePage() {
             </div>
             <p className="text-gray-600">
               Accede a la lista de artículos publicados en el sistema.
+            </p>
+          </Link>
+          
+          {/* Sección de Citas */}
+          <Link 
+            href="/citas/lista"
+            className="group block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
+          >
+            <div className="flex items-center space-x-3 mb-4">
+              <Calendar className="h-8 w-8 text-indigo-600 group-hover:text-indigo-700" />
+              <h3 className="text-xl font-semibold text-gray-900">Gestión de Citas</h3>
+            </div>
+            <p className="text-gray-600">
+              Visualiza, filtra y administra todas las citas de tus pacientes.
+            </p>
+          </Link>
+
+          {/* Días Bloqueados */}
+          <Link 
+            href="/dias-bloqueados/lista"
+            className="group block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200"
+          >
+            <div className="flex items-center space-x-3 mb-4">
+              <CalendarOff className="h-8 w-8 text-rose-600 group-hover:text-rose-700" />
+              <h3 className="text-xl font-semibold text-gray-900">Días Bloqueados</h3>
+            </div>
+            <p className="text-gray-600">
+              Gestiona los días y horarios en los que no puedes atender pacientes.
             </p>
           </Link>
         </div>

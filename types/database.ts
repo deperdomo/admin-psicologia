@@ -156,6 +156,110 @@ export interface BlogArticle {
   updated_at?: string | null
 }
 
+// ===== APPOINTMENTS & BLOCKED SLOTS TYPES =====
+
+export type ConsultationType = 'primera_consulta' | 'seguimiento'
+export type AppointmentModalidad = 'presencial' | 'online'
+export type AppointmentStatus = 'CONFIRMADA' | 'CANCELADA'
+
+// Interfaz que refleja la tabla appointments en Supabase
+export interface Appointment {
+  id: string
+  patient_name: string
+  patient_email: string
+  patient_phone: string
+  appointment_date: string // DATE
+  appointment_time: string // TIME
+  consultation_type: ConsultationType
+  modalidad: AppointmentModalidad
+  status: AppointmentStatus
+  cancellation_token?: string | null
+  notes?: string | null
+  google_event_id?: string | null
+  google_meet_link?: string | null
+  created_at: string
+  updated_at?: string | null
+}
+
+// Interfaz para el formulario de citas
+export interface AppointmentFormData {
+  patient_name: string
+  patient_email: string
+  patient_phone: string
+  appointment_date: string // YYYY-MM-DD
+  appointment_time: string // HH:mm
+  consultation_type: ConsultationType
+  modalidad: AppointmentModalidad
+  notes?: string
+  send_notification?: boolean // ¿Enviar email de confirmación?
+}
+
+// Interfaz para cancelar citas desde admin
+export interface CancelAppointmentData {
+  appointmentId: string
+  reason: string // Motivo de cancelación
+  notify_patient: boolean // ¿Notificar al paciente?
+  admin_notes?: string // Notas internas
+}
+
+// Interfaz que refleja la tabla blocked_slots en Supabase
+export interface BlockedSlot {
+  id: string
+  blocked_date: string // DATE
+  blocked_time?: string | null // TIME o null para bloquear todo el día
+  reason?: string | null
+  created_at: string
+}
+
+// Interfaz para crear un slot bloqueado
+export interface CreateBlockedSlotData {
+  blocked_date: string // YYYY-MM-DD
+  blocked_time?: string | null // HH:mm o null para todo el día
+  reason?: string
+  recurring?: {
+    type: 'weekly' | 'monthly'
+    count: number // Número de repeticiones
+  }
+}
+
+// Interfaz para filtros de administración de citas
+export interface AdminAppointmentFilters {
+  dateFrom?: string // YYYY-MM-DD
+  dateTo?: string // YYYY-MM-DD
+  status?: 'ALL' | AppointmentStatus
+  searchTerm?: string // Buscar por nombre, email o teléfono
+  page?: number
+  limit?: number
+}
+
+// Interfaz para estadísticas del admin
+export interface AdminStats {
+  totalAppointments: number
+  todayAppointments: number
+  thisWeekAppointments: number
+  thisMonthAppointments: number
+  cancelledThisMonth: number
+  confirmedThisMonth: number
+  revenue: {
+    today: number
+    thisWeek: number
+    thisMonth: number
+  }
+}
+
+// Interfaz para métricas del dashboard
+export interface DashboardData {
+  // Métricas del día
+  todayAppointments: number
+  todayRevenue: number
+  // Próximas citas
+  upcomingAppointments: Appointment[]
+  // Estados
+  confirmedCount: number
+  cancelledCount: number
+  blockedSlotsCount: number
+}
+
 // Interfaz para el formulario de artículos del blog
 export interface BlogArticleFormData {
   title: string
