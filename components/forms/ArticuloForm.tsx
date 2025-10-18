@@ -47,14 +47,14 @@ export default function ArticuloForm({
   // Datos fijos del autor
   const AUTHOR_DATA = {
     'Llenia Monteagudo': {
-      author_email: 'vinculoycrecimiento@gmail.com',
-      author_bio: 'Llenia Monteagudo es graduada en psicología, con mención en psicología clínica, por la Universidad de Barcelona. Cursó el **Máster en Psicología General Sanitaria** con la Universidad Autónoma de Barcelona.\n\nPosteriormente, se formó como experta en psicología de las emergencias y catástrofes. Tanto esta formación como la experiencia laboral en el campo, supusieron para Llenia el descubrimiento de un nuevo mundo: ***el trauma***.\n\nDesde entonces, trabaja desde un *enfoque integrador* y no ha parado de formarse en trauma, sistema nervioso, apego, duelo y emociones. Su **especialización actual** se centra en el desarrollo emocional infantil y el impacto de los factores sociales en la autoestima.',
-      author_credentials: 'Graduada en Psicología (Universidad de Barcelona), Máster en Psicología General Sanitaria (Universidad Autónoma de Barcelona), Especialista en Desarrollo Emocional Infantil',
+      author_email: 'lleniavinculoycrecimiento@gmail.com',
+      author_bio: 'Llenia Monteagudo es graduada en Psicología, con mención en Psicología Clínica, por la Universidad Central "Marta Abreu" de Las Villas. Posee una sólida formación de posgrado, con másteres en Psicología Infantil y Juvenil, Terapias de Tercera Generación, Cuidado Pastoral de la Familia y Psicopedagogía Terapéutica.\n\nTrabaja desde un enfoque integrador, combinando herramientas basadas en el conocimiento del sistema nervioso, el apego, el duelo y la gestión emocional. Su especialización actual se centra en el desarrollo emocional infantil y en el impacto de los factores sociales en la construcción de la autoestima.\n\nAdemás, acompaña a familias, parejas y personas en procesos individuales que buscan mejorar su bienestar emocional, fortalecer vínculos y desarrollar recursos personales para enfrentar los desafíos de la vida cotidiana.',
+      author_credentials: 'Graduada de Psicología Clínica (Universidad Central Martha Abreu de las Villas), Máster en Psicología Infantil y Juvenil, Máster en Terapias de Tercera Generación, Máster de Cuidado Pastoral de la Familia y Máster en Psicopedagogía Terapéutica',
       author_photo_url: 'https://eabqgmhadverstykzcrr.supabase.co/storage/v1/object/public/blog-images/authors/llenia-monteagudo.webp',
       author_social_links: {
-        twitter: 'https://twitter.com/llenia_monteagudo',
-        linkedin: 'https://linkedin.com/in/llenia-monteagudo-psicologa',
-        instagram: 'https://instagram.com/llenia.monteagudo.psicologia',
+        twitter: 'https://x.com/LleniaVinculo',
+        linkedin: 'https://www.linkedin.com/in/lleniamonteagudo/',
+        instagram: 'https://www.instagram.com/lleniavinculo/',
         web: 'https://lleniapsicologia.com/'
       }
     }
