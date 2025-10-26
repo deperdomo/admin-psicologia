@@ -61,7 +61,7 @@ const TextareaWithPaste = React.forwardRef<HTMLTextAreaElement, TextareaWithPast
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-1 top-1 h-7 w-7 p-0 hover:bg-muted"
+            className="absolute right-1 top-1 h-7 w-7 p-0 hover:bg-muted cursor-pointer"
             onClick={handlePasteClick}
             title="Pegar desde portapapeles"
           >

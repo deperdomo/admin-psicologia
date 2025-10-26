@@ -284,6 +284,7 @@ export default function ArticuloForm({
                       <ImageUpload
                         onImageSelect={handleImageSelect}
                         currentImage={selectedImage}
+                        currentImageUrl={initialData?.image_1_url}
                         disabled={disabled}
                         maxSize={5 * 1024 * 1024} // 5MB
                         accept="image/*"

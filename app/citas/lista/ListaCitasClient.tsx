@@ -18,7 +18,7 @@ export default function ListaCitasClient() {
   
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState<AdminAppointmentFilters>({
-    status: 'ALL',
+    status: 'CONFIRMADA',
     searchTerm: '',
     dateFrom: '',
     dateTo: ''
@@ -55,7 +55,7 @@ export default function ListaCitasClient() {
   // Limpiar filtros
   const handleClearFilters = () => {
     const clearedFilters: AdminAppointmentFilters = {
-      status: 'ALL',
+      status: 'CONFIRMADA',
       searchTerm: '',
       dateFrom: '',
       dateTo: ''
@@ -227,12 +227,12 @@ export default function ListaCitasClient() {
             </label>
             <select
               value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value as 'ALL' | 'CONFIRMADA' | 'CANCELADA' })}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value as | 'CONFIRMADA' | 'CANCELADA' | 'ALL' })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="ALL">Todas</option>
               <option value="CONFIRMADA">Confirmadas</option>
               <option value="CANCELADA">Canceladas</option>
+              <option value="ALL">Todas</option>
             </select>
           </div>
 
