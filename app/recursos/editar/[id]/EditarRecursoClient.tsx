@@ -8,6 +8,8 @@ import RecursoForm from '@/components/forms/RecursoForm'
 import { SuccessModal } from '@/components/shared/SuccessModal'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
 import type { Recurso, RecursoFormData } from '@/types/database'
 
 export default function EditarRecursoClient() {
@@ -107,19 +109,19 @@ export default function EditarRecursoClient() {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="border-b border-gray-200 pb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Error al Cargar Recurso</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <h1 className="text-3xl font-bold tracking-tight">Error al Cargar Recurso</h1>
         </div>
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
         <div className="flex justify-center">
-          <button
+          <Button
             onClick={() => router.push('/recursos/lista')}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Volver a la Lista
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -128,18 +130,18 @@ export default function EditarRecursoClient() {
   if (!recurso) {
     return (
       <div className="space-y-6">
-        <div className="border-b border-gray-200 pb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Recurso No Encontrado</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <h1 className="text-3xl font-bold tracking-tight">Recurso No Encontrado</h1>
         </div>
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-gray-600 mb-4">El recurso solicitado no existe o ha sido eliminado.</p>
-            <button
+            <Button
               onClick={() => router.push('/recursos/lista')}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Volver a la Lista
-            </button>
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -165,11 +167,21 @@ export default function EditarRecursoClient() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-gray-200 pb-4">
-        <h1 className="text-3xl font-bold text-gray-900">Editar Recurso</h1>
-        <p className="text-gray-600 mt-2">
-          Modificando: <span className="font-medium">{recurso.resource_id} - {recurso.title}</span>
-        </p>
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push('/recursos/lista')}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Volver a la Lista
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Editar Recurso</h1>
+          <p className="text-muted-foreground">
+            Modificando: <span className="font-medium">{recurso.resource_id} - {recurso.title}</span>
+          </p>
+        </div>
       </div>
 
       {/* Formulario */}

@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabase'
 import { checkResourceIdExists } from '@/lib/recursos'
 import { uploadFile } from '@/lib/fileUpload'
 import { SuccessModal } from '@/components/shared/SuccessModal'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
 
 export function NuevoRecursoClient() {
   const { user, loading } = useRequireAuth();
@@ -162,6 +164,23 @@ export function NuevoRecursoClient() {
 
   return (
     <>
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push('/recursos/lista')}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Volver a la Lista
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Nuevo Recurso</h1>
+          <p className="text-muted-foreground">
+            Crea un nuevo recurso para descargar
+          </p>
+        </div>
+      </div>
+
       <RecursoForm
         onSubmit={handleSubmit}
         submitLabel="Crear Recurso"

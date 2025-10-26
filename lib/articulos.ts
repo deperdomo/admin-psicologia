@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabaseAdmin } from './supabase'
 import type { BlogArticle, BlogArticleFormData } from '@/types/database'
 
 type RelatedArticle = NonNullable<BlogArticleFormData['related_articles']>[0]
@@ -69,7 +69,7 @@ export async function createArticulo(data: BlogArticleFormData): Promise<BlogArt
     console.log('Datos a insertar en BD:', insertData)
     console.log('related_articles que se insertarán:', insertData.related_articles)
 
-    const { data: insertedData, error } = await supabase
+    const { data: insertedData, error } = await supabaseAdmin
       .from('blog_articles')
       .insert([insertData])
       .select()
@@ -89,7 +89,7 @@ export async function createArticulo(data: BlogArticleFormData): Promise<BlogArt
 
 export async function getArticulos(searchTerm?: string | null): Promise<BlogArticle[]> {
   try {
-    let query = supabase
+    let query = supabaseAdmin
       .from('blog_articles')
       .select('*')
       .order('created_at', { ascending: false })
@@ -115,7 +115,7 @@ export async function getArticulos(searchTerm?: string | null): Promise<BlogArti
 
 export async function getArticuloById(id: string): Promise<BlogArticle | null> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('blog_articles')
       .select('*')
       .eq('id', id)
@@ -178,7 +178,7 @@ export async function updateArticulo(id: string, data: Partial<BlogArticleFormDa
 
     updateData.updated_at = new Date().toISOString()
 
-    const { data: updatedData, error } = await supabase
+    const { data: updatedData, error } = await supabaseAdmin
       .from('blog_articles')
       .update(updateData)
       .eq('id', id)
@@ -199,7 +199,7 @@ export async function updateArticulo(id: string, data: Partial<BlogArticleFormDa
 
 export async function deleteArticulo(id: string): Promise<void> {
   try {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('blog_articles')
       .delete()
       .eq('id', id)
@@ -217,7 +217,7 @@ export async function deleteArticulo(id: string): Promise<void> {
 // Función para verificar si un slug ya existe
 export async function checkSlugExists(slug: string, excludeId?: string): Promise<boolean> {
   try {
-    let query = supabase
+    let query = supabaseAdmin
       .from('blog_articles')
       .select('id')
       .eq('slug', slug)
