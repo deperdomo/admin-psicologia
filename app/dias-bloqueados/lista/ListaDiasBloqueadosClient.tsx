@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useBlockedSlots } from '@/lib/hooks/useAdminCitas'
 import { Button } from '@/components/ui/button'
@@ -39,9 +39,13 @@ export default function ListaDiasBloqueadosClient() {
     error: null
   })
 
-  useEffect(() => {
+  const loadBlockedSlotsCallback = useCallback(() => {
     loadBlockedSlots()
-  }, [])
+  }, [loadBlockedSlots])
+
+  useEffect(() => {
+    loadBlockedSlotsCallback()
+  }, [loadBlockedSlotsCallback])
 
   // Formatear fecha
   const formatDate = (date: string) => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Search, Calendar, X, CheckCircle, XCircle, Filter } from 'lucide-react'
 import { useRequireAuth } from '@/lib/hooks/useRequireAuth'
@@ -42,10 +42,14 @@ export default function ListaCitasClient() {
   })
 
   // Cargar citas al iniciar
+  const loadCitasCallback = useCallback(() => {
+    loadCitas(filters)
+  }, [filters, loadCitas])
+
   useEffect(() => {
     if (!user) return
-    loadCitas(filters)
-  }, [user])
+    loadCitasCallback()
+  }, [user, loadCitasCallback])
 
   // Aplicar filtros
   const handleApplyFilters = () => {

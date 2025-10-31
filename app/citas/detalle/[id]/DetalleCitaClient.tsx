@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Calendar, Clock, User, Mail, Phone, MapPin, FileText, CheckCircle, XCircle, Video } from 'lucide-react'
 import { useRequireAuth } from '@/lib/hooks/useRequireAuth'
@@ -20,12 +20,7 @@ export default function DetalleCitaClient() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!user || !citaId) return
-    loadCita()
-  }, [user, citaId])
-
-  const loadCita = async () => {
+  const loadCita = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -46,7 +41,12 @@ export default function DetalleCitaClient() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [citaId])
+
+  useEffect(() => {
+    if (!user || !citaId) return
+    loadCita()
+  }, [user, citaId, loadCita])
 
   // Formatear fecha
   const formatDate = (dateString: string) => {
