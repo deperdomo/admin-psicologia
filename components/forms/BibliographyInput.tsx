@@ -83,6 +83,7 @@ export function BibliographyInput({ value, onChange, disabled }: BibliographyInp
           size="sm"
           onClick={addBibliography}
           disabled={disabled}
+          className="cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar Referencia
@@ -99,6 +100,7 @@ export function BibliographyInput({ value, onChange, disabled }: BibliographyInp
               size="sm"
               onClick={() => removeBibliography(index)}
               disabled={disabled}
+              className="cursor-pointer"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -151,6 +153,7 @@ export function BibliographyInput({ value, onChange, disabled }: BibliographyInp
                   size="sm"
                   onClick={() => removeAuthor(index, authorIndex)}
                   disabled={disabled || item.authors.length === 1}
+                  className="cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -162,7 +165,7 @@ export function BibliographyInput({ value, onChange, disabled }: BibliographyInp
               size="sm"
               onClick={() => addAuthor(index)}
               disabled={disabled}
-              className="mt-2"
+              className="mt-2 cursor-pointer"
             >
               <Plus className="h-4 w-4 mr-2" />
               Agregar Autor

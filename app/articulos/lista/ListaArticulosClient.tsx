@@ -169,6 +169,7 @@ export default function ListaArticulosClient() {
             variant="outline"
             size="sm"
             onClick={() => router.push('/')}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver al Inicio
@@ -180,7 +181,7 @@ export default function ListaArticulosClient() {
             </p>
           </div>
         </div>
-        <Button onClick={() => router.push('/articulos/nuevo')}>
+        <Button onClick={() => router.push('/articulos/nuevo')} className="cursor-pointer">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Artículo
         </Button>
@@ -343,6 +344,7 @@ export default function ListaArticulosClient() {
                       variant="outline"
                       size="sm"
                       onClick={() => router.push(`/articulos/editar/${articulo.id}`)}
+                      className="cursor-pointer"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -350,6 +352,7 @@ export default function ListaArticulosClient() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDeleteClick(articulo)}
+                      className="cursor-pointer"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

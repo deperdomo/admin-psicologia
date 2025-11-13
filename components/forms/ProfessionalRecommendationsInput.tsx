@@ -38,8 +38,8 @@ const PROFESSIONALS: ProfessionalInfo[] = [
     name: "Llenia Monteagudo",
     title: "Psicóloga Especialista en Desarrollo Infantil",
     approach: "Enfoque integrador basado en neuropsicología del desarrollo y apego seguro",
-    image_url: "https://eabqgmhadverstykzcrr.supabase.co/storage/v1/object/public/blog-images/authors/llenia-monteagudo.jpg",
-    credentials: "Graduada en Psicología (Universidad de Barcelona), Máster en Psicología General Sanitaria (Universidad Autónoma de Barcelona), Especialista en Desarrollo Emocional Infantil",
+    image_url: "https://eabqgmhadverstykzcrr.supabase.co/storage/v1/object/public/blog-images/authors/llenia-monteagudo.webp",
+    credentials: "Graduada de Psicología Clínica (Universidad Central Martha Abreu de las Villas), Máster en Psicología Infantil y Juvenil, Máster en Terapias de Tercera Generación, Máster de Cuidado Pastoral de la Familia y Máster en Psicopedagogía Terapéutica",
     specialties: ["Autoestima Infantil", "Desarrollo Emocional", "Crianza Consciente", "Ansiedad Infantil"],
     experience_description: "Especializada en acompañar a familias en el fortalecimiento del bienestar emocional infantil"
   },
@@ -138,6 +138,7 @@ export function ProfessionalRecommendationsInput({ value, onChange, disabled }: 
           size="sm"
           onClick={addRecommendation}
           disabled={disabled}
+          className="cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar Recomendación
@@ -155,6 +156,7 @@ export function ProfessionalRecommendationsInput({ value, onChange, disabled }: 
                 size="sm"
                 onClick={() => removeRecommendation(index)}
                 disabled={disabled}
+                className="cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -336,6 +338,7 @@ export function ProfessionalRecommendationsInput({ value, onChange, disabled }: 
                           size="sm"
                           onClick={() => addSpecialty(index)}
                           disabled={disabled}
+                          className="cursor-pointer"
                         >
                           <Plus className="h-3 w-3 mr-1" />
                           Agregar
@@ -355,6 +358,7 @@ export function ProfessionalRecommendationsInput({ value, onChange, disabled }: 
                             size="sm"
                             onClick={() => removeSpecialty(index, specialtyIndex)}
                             disabled={disabled}
+                            className="cursor-pointer"
                           >
                             <X className="h-3 w-3" />
                           </Button>

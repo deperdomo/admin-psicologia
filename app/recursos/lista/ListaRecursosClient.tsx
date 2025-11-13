@@ -175,7 +175,7 @@ export default function ListaRecursosClient() {
         </div>
         <Button 
           onClick={() => router.push('/recursos/nuevo')}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           Nuevo Recurso
@@ -190,7 +190,7 @@ export default function ListaRecursosClient() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="ml-2"
+              className="ml-2 cursor-pointer"
               onClick={() => setError(null)}
             >
               Cerrar

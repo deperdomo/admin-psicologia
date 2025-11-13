@@ -181,6 +181,7 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
           variant="outline"
           size="sm"
           onClick={() => router.push('/articulos/lista')}
+          className="cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a la Lista

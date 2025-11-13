@@ -95,6 +95,7 @@ export default function DetalleCitaClient() {
             variant="outline"
             size="sm"
             onClick={() => router.push('/citas/lista')}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver a la Lista
@@ -118,6 +119,7 @@ export default function DetalleCitaClient() {
             variant="outline"
             size="sm"
             onClick={() => router.push('/citas/lista')}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver
@@ -338,7 +340,7 @@ export default function DetalleCitaClient() {
             
             <div className="space-y-2">
               <Button 
-                className="w-full"
+                className="w-full cursor-pointer"
                 variant="outline"
                 onClick={() => window.open(`mailto:${cita.patient_email}`, '_blank')}
               >
@@ -347,7 +349,7 @@ export default function DetalleCitaClient() {
               </Button>
               
               <Button 
-                className="w-full"
+                className="w-full cursor-pointer"
                 variant="outline"
                 onClick={() => window.open(`tel:${cita.patient_phone}`, '_blank')}
               >
@@ -357,7 +359,7 @@ export default function DetalleCitaClient() {
               
               {cita.google_meet_link && (
                 <Button 
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   variant="outline"
                   onClick={() => window.open(cita.google_meet_link!, '_blank')}
                 >

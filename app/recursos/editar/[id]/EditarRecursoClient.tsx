@@ -118,6 +118,7 @@ export default function EditarRecursoClient() {
         <div className="flex justify-center">
           <Button
             onClick={() => router.push('/recursos/lista')}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver a la Lista
@@ -138,6 +139,7 @@ export default function EditarRecursoClient() {
             <p className="text-gray-600 mb-4">El recurso solicitado no existe o ha sido eliminado.</p>
             <Button
               onClick={() => router.push('/recursos/lista')}
+              className="cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver a la Lista
@@ -172,6 +174,7 @@ export default function EditarRecursoClient() {
           variant="outline"
           size="sm"
           onClick={() => router.push('/recursos/lista')}
+          className="cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver a la Lista

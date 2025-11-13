@@ -72,6 +72,7 @@ export default function NuevoArticuloClient() {
           variant="outline"
           size="sm"
           onClick={() => router.back()}
+          className="cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Volver

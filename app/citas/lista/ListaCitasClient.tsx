@@ -175,7 +175,7 @@ export default function ListaCitasClient() {
         </div>
         <Button 
           onClick={() => router.push('/citas/nuevo')}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           Nueva Cita
@@ -190,7 +190,7 @@ export default function ListaCitasClient() {
             <Button 
               variant="outline" 
               size="sm" 
-              className="ml-2"
+              className="ml-2 cursor-pointer"
               onClick={() => setError(null)}
             >
               Cerrar
@@ -244,7 +244,7 @@ export default function ListaCitasClient() {
           <div className="flex items-end gap-2">
             <Button 
               onClick={handleApplyFilters}
-              className="flex-1"
+              className="flex-1 cursor-pointer"
               disabled={loading}
             >
               Aplicar
@@ -253,6 +253,7 @@ export default function ListaCitasClient() {
               onClick={handleClearFilters}
               variant="outline"
               disabled={loading}
+              className="cursor-pointer"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -297,7 +298,7 @@ export default function ListaCitasClient() {
           <p className="text-gray-600 mb-4">
             No se encontraron citas con los filtros aplicados.
           </p>
-          <Button onClick={() => router.push('/citas/nuevo')}>
+          <Button onClick={() => router.push('/citas/nuevo')} className="cursor-pointer">
             <Plus className="h-4 w-4 mr-2" />
             Crear primera cita
           </Button>
@@ -392,6 +393,7 @@ export default function ListaCitasClient() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleViewDetails(cita.id)}
+                          className="cursor-pointer"
                         >
                           Ver
                         </Button>
@@ -400,6 +402,7 @@ export default function ListaCitasClient() {
                             variant="destructive"
                             size="sm"
                             onClick={() => handleCancelClick(cita)}
+                            className="cursor-pointer"
                           >
                             Cancelar
                           </Button>
@@ -471,7 +474,7 @@ export default function ListaCitasClient() {
               <Button
                 onClick={() => setCancelModal({ ...cancelModal, isOpen: false })}
                 variant="outline"
-                className="flex-1"
+                className="flex-1 cursor-pointer"
                 disabled={cancelModal.loading}
               >
                 Cancelar
@@ -479,7 +482,7 @@ export default function ListaCitasClient() {
               <Button
                 onClick={confirmCancel}
                 variant="destructive"
-                className="flex-1"
+                className="flex-1 cursor-pointer"
                 disabled={cancelModal.loading}
               >
                 {cancelModal.loading ? 'Cancelando...' : 'Confirmar Cancelación'}

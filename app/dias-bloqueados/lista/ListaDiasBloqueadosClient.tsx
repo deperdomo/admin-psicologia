@@ -182,7 +182,7 @@ export default function ListaDiasBloqueadosClient() {
         </div>
         <Button
           onClick={() => router.push('/dias-bloqueados/nuevo')}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 cursor-pointer"
         >
           <Plus size={20} />
           Bloquear Día
@@ -214,7 +214,7 @@ export default function ListaDiasBloqueadosClient() {
               </p>
               <Button
                 onClick={() => router.push('/dias-bloqueados/nuevo')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 cursor-pointer"
               >
                 <Plus size={20} />
                 Bloquear Primer Día
@@ -242,7 +242,7 @@ export default function ListaDiasBloqueadosClient() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleEditClick(date)}
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 cursor-pointer"
                     >
                       <Pencil size={16} />
                       Editar
@@ -251,7 +251,7 @@ export default function ListaDiasBloqueadosClient() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDeleteDayClick(date, slotsByDate[date])}
-                      className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 cursor-pointer"
                     >
                       <Trash2 size={16} />
                       Eliminar día
@@ -286,7 +286,7 @@ export default function ListaDiasBloqueadosClient() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteClick(slot)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                       >
                         <Trash2 size={16} />
                       </Button>

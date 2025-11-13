@@ -38,6 +38,7 @@ export function SummaryPointsInput({ value, onChange, disabled }: SummaryPointsI
           size="sm"
           onClick={addPoint}
           disabled={disabled}
+          className="cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar Punto
@@ -54,6 +55,7 @@ export function SummaryPointsInput({ value, onChange, disabled }: SummaryPointsI
               size="sm"
               onClick={() => removePoint(index)}
               disabled={disabled}
+              className="cursor-pointer"
             >
               <X className="h-4 w-4" />
             </Button>

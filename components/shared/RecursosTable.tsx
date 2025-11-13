@@ -223,7 +223,7 @@ export default function RecursosTable({
                             variant="outline"
                             size="sm"
                             onClick={() => onDownload(recurso)}
-                            className="h-7 w-7 p-0"
+                            className="h-7 w-7 p-0 cursor-pointer"
                             disabled={!recurso.word_public_url && !recurso.pdf_public_url}
                             title="Descargar archivos"
                           >
@@ -233,7 +233,7 @@ export default function RecursosTable({
                             variant="outline"
                             size="sm"
                             onClick={() => onEdit(recurso.id)}
-                            className="h-7 w-7 p-0"
+                            className="h-7 w-7 p-0 cursor-pointer"
                             title="Editar recurso"
                           >
                             <Edit className="h-4 w-4" />
@@ -242,7 +242,7 @@ export default function RecursosTable({
                             variant="outline"
                             size="sm"
                             onClick={() => onDelete(recurso.id)}
-                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                             title="Eliminar recurso"
                           >
                             <Trash2 className="h-4 w-4" />

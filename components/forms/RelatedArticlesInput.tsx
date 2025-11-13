@@ -145,6 +145,7 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
           size="sm"
           onClick={addArticle}
           disabled={disabled}
+          className="cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar Artículo
@@ -206,6 +207,7 @@ export function RelatedArticlesInput({ value, onChange, disabled }: RelatedArtic
                 size="sm"
                 onClick={() => removeArticle(index)}
                 disabled={disabled}
+                className="cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </Button>

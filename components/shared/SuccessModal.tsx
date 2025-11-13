@@ -32,7 +32,7 @@ export function SuccessModal({ isOpen, onClose, title, message }: SuccessModalPr
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={onClose} className="w-full">
+          <Button onClick={onClose} className="w-full cursor-pointer">
             Continuar
           </Button>
         </DialogFooter>

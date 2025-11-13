@@ -136,7 +136,7 @@ export function FileUpload({
                   variant="ghost"
                   size="sm"
                   onClick={removeFile}
-                  className="text-gray-500 hover:text-red-500"
+                  className="text-gray-500 hover:text-red-500 cursor-pointer"
                   disabled={isUploading}
                 >
                   <X className="w-4 h-4" />

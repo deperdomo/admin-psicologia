@@ -467,7 +467,7 @@ export default function RecursoForm({
           <Button
             type="submit"
             disabled={disabled}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer"
           >
             <Save className="h-4 w-4" />
             {submitLabel}

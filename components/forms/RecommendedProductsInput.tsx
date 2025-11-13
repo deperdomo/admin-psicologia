@@ -50,6 +50,7 @@ export function RecommendedProductsInput({ value, onChange, disabled }: Recommen
           size="sm"
           onClick={addProduct}
           disabled={disabled}
+          className="cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar Producto
@@ -66,6 +67,7 @@ export function RecommendedProductsInput({ value, onChange, disabled }: Recommen
               size="sm"
               onClick={() => removeProduct(index)}
               disabled={disabled}
+              className="cursor-pointer"
             >
               <X className="h-4 w-4" />
             </Button>

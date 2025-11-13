@@ -149,6 +149,7 @@ export default function CitasTable({ citas, onView, onCancel, loading }: CitasTa
                         size="sm"
                         onClick={() => onView(cita.id)}
                         title="Ver detalles"
+                        className="cursor-pointer"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -159,6 +160,7 @@ export default function CitasTable({ citas, onView, onCancel, loading }: CitasTa
                         size="sm"
                         onClick={() => onCancel(cita)}
                         title="Cancelar cita"
+                        className="cursor-pointer"
                       >
                         <Ban className="h-4 w-4" />
                       </Button>

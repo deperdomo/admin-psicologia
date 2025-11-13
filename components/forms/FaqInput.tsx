@@ -40,6 +40,7 @@ export function FaqInput({ value, onChange, disabled }: FaqInputProps) {
           size="sm"
           onClick={addFaq}
           disabled={disabled}
+          className="cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar FAQ
@@ -56,6 +57,7 @@ export function FaqInput({ value, onChange, disabled }: FaqInputProps) {
               size="sm"
               onClick={() => removeFaq(index)}
               disabled={disabled}
+              className="cursor-pointer"
             >
               <X className="h-4 w-4" />
             </Button>

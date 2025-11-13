@@ -61,6 +61,7 @@ export default function DeleteConfirmModal({
             variant="outline"
             onClick={onClose}
             disabled={loading}
+            className="cursor-pointer"
           >
             Cancelar
           </Button>
@@ -68,6 +69,7 @@ export default function DeleteConfirmModal({
             variant="destructive"
             onClick={onConfirm}
             disabled={loading}
+            className="cursor-pointer"
           >
             {loading ? 'Eliminando...' : 'Eliminar'}
           </Button>

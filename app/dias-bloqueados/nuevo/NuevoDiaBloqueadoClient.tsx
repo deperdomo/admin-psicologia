@@ -221,7 +221,7 @@ export default function NuevoDiaBloqueadoClient() {
         <Button
           variant="ghost"
           onClick={() => router.push('/dias-bloqueados/lista')}
-          className="mb-4 -ml-2"
+          className="mb-4 -ml-2 cursor-pointer"
         >
           <ArrowLeft size={20} className="mr-2" />
           Volver a la lista
@@ -507,14 +507,14 @@ export default function NuevoDiaBloqueadoClient() {
                 variant="outline"
                 onClick={() => router.push('/dias-bloqueados/lista')}
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 cursor-pointer"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 cursor-pointer"
               >
                 {loading ? (
                   <>

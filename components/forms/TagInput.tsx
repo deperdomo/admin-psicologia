@@ -83,7 +83,7 @@ export function TagInput({
                 <button
                   type="button"
                   onClick={() => removeTag(index)}
-                  className="ml-2 hover:text-destructive"
+                  className="ml-2 hover:text-destructive cursor-pointer"
                 >
                   <X className="w-3 h-3" />
                 </button>

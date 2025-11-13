@@ -1437,7 +1437,7 @@ export default function ArticuloForm({
             <Button
               type="submit"
               disabled={disabled}
-              className="flex items-center gap-2 px-8"
+              className="flex items-center gap-2 px-8 cursor-pointer"
               size="lg"
             >
               <Save className="h-4 w-4" />

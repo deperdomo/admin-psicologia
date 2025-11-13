@@ -41,6 +41,7 @@ export function AdditionalResourcesInput({ value, onChange, disabled }: Addition
           size="sm"
           onClick={addResource}
           disabled={disabled}
+          className="cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-2" />
           Agregar Recurso
@@ -57,6 +58,7 @@ export function AdditionalResourcesInput({ value, onChange, disabled }: Addition
               size="sm"
               onClick={() => removeResource(index)}
               disabled={disabled}
+              className="cursor-pointer"
             >
               <X className="h-4 w-4" />
             </Button>
