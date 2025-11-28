@@ -50,6 +50,27 @@ export default function NuevoArticuloClient() {
         throw new Error(errorData.error || 'Error al crear el artículo')
       }
 
+      const result = await response.json()
+      const articleId = result.id
+
+      // Disparar webhook de n8n para procesar productos recomendados
+      // No bloquear si falla, ya que el artículo ya se creó exitosamente
+      if (articleId) {
+        fetch('/api/n8n-webhook', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            articleId,
+            action: 'create',
+          }),
+        }).catch(error => {
+          console.error('Error al disparar webhook n8n:', error)
+          // No interrumpir el flujo del usuario
+        })
+      }
+
       setShowSuccessModal(true)
 
     } catch (error) {

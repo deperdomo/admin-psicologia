@@ -75,6 +75,22 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
         throw new Error(errorData.error || 'Error al actualizar el artículo')
       }
 
+      // Disparar webhook de n8n para procesar productos recomendados
+      // No bloquear si falla, ya que el artículo ya se actualizó exitosamente
+      fetch('/api/n8n-webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          articleId: id,
+          action: 'update',
+        }),
+      }).catch(error => {
+        console.error('Error al disparar webhook n8n:', error)
+        // No interrumpir el flujo del usuario
+      })
+
       setShowSuccessModal(true)
       
     } catch (error) {

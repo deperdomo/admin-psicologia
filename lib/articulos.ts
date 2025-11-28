@@ -171,11 +171,7 @@ export async function updateArticulo(id: string, data: Partial<BlogArticleFormDa
       console.log('related_articles que se actualizarán:', updateData.related_articles)
     }
 
-    // Si se está publicando, actualizar la fecha de publicación
-    if (data.status === 'published' && !updateData.published_at) {
-      updateData.published_at = new Date().toISOString()
-    }
-
+    // Solo actualizar updated_at, NO tocar published_at en actualizaciones
     updateData.updated_at = new Date().toISOString()
 
     const { data: updatedData, error } = await supabaseAdmin
