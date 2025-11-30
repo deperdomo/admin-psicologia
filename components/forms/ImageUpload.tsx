@@ -10,9 +10,9 @@ import Image from 'next/image'
 interface ImageUploadProps {
   onImageSelect: (file: File | null) => void
   currentImage?: File | null
-  currentImageUrl?: string // URL de la imagen actual (cuando se está editando)
+  currentImageUrl?: string // URL de la imagen actual (cuando está editando)
   disabled?: boolean
-  maxSize?: number // en bytes, default 5MB
+  maxSize?: number // en bytes, default 8MB
   accept?: string
   placeholder?: string
 }
@@ -22,7 +22,7 @@ export function ImageUpload({
   currentImage,
   currentImageUrl,
   disabled = false,
-  maxSize = 5 * 1024 * 1024, // 5MB por defecto
+  maxSize = 8 * 1024 * 1024, // 8MB por defecto
   accept = "image/*",
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false)

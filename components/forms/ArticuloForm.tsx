@@ -286,7 +286,7 @@ export default function ArticuloForm({
                         currentImage={selectedImage}
                         currentImageUrl={initialData?.image_1_url}
                         disabled={disabled}
-                        maxSize={5 * 1024 * 1024} // 5MB
+                        maxSize={8 * 1024 * 1024} // 8MB
                         accept="image/*"
                         placeholder="Seleccionar imagen principal..."
                       />

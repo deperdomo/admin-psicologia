@@ -41,7 +41,7 @@ async function ensureBlogImagesBucketExists(): Promise<boolean> {
     const { error: createError } = await supabase.storage.createBucket('blog-images', {
       public: true,
       allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-      fileSizeLimit: 5242880 // 5MB
+      fileSizeLimit: 8388608 // 8MB
     })
 
     if (createError) {
@@ -95,12 +95,12 @@ export async function uploadBlogImage(
       }
     }
 
-    // Validar el tamaño (máximo 5MB para el archivo original)
-    const maxSize = 5 * 1024 * 1024 // 5MB
+    // Validar el tamaño (máximo 8MB para el archivo original)
+    const maxSize = 8 * 1024 * 1024 // 8MB
     if (file.size > maxSize) {
       return {
         success: false,
-        error: 'La imagen no puede superar los 5MB'
+        error: 'La imagen no puede superar los 8MB'
       }
     }
 
