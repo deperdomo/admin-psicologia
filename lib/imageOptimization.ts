@@ -30,47 +30,94 @@ export async function optimizeImage(
   } = options
 
   try {
+    console.log('Iniciando optimización de imagen:', {
+      filename: file.name,
+      size: file.size,
+      type: file.type
+    })
+
     // Convertir File a Buffer
     const arrayBuffer = await file.arrayBuffer()
     const inputBuffer = Buffer.from(arrayBuffer)
     const originalSize = inputBuffer.length
 
+    console.log('Buffer creado:', {
+      bufferSize: inputBuffer.length,
+      originalSize
+    })
+
     // Procesar la imagen con Sharp
     let sharpInstance = sharp(inputBuffer)
 
     // Obtener metadatos para decidir si redimensionar
+    console.log('Obteniendo metadatos de la imagen...')
     const metadata = await sharpInstance.metadata()
     const { width = 0, height = 0 } = metadata
+    
+    console.log('Metadatos obtenidos:', {
+      width,
+      height,
+      format: metadata.format,
+      space: metadata.space
+    })
 
     // Redimensionar solo si la imagen es más grande que los límites
     if (width > maxWidth || height > maxHeight) {
+      console.log('Redimensionando imagen...')
       sharpInstance = sharpInstance.resize(maxWidth, maxHeight, {
         fit: 'inside',
-        withoutEnlargement: true
+        withoutEnlargement: true,
+        kernel: 'lanczos3' // Mejor algoritmo de interpolación
       })
     }
 
     // Convertir al formato deseado con calidad optimizada
+    console.log('Convirtiendo a formato:', format)
     let outputBuffer: Buffer
 
-    switch (format) {
-      case 'webp':
-        outputBuffer = await sharpInstance
-          .webp({ quality, effort: 6 }) // effort 6 es un buen balance entre calidad y velocidad
-          .toBuffer()
-        break
-      case 'jpeg':
-        outputBuffer = await sharpInstance
-          .jpeg({ quality, progressive: true })
-          .toBuffer()
-        break
-      case 'png':
-        outputBuffer = await sharpInstance
-          .png({ compressionLevel: 9, progressive: true })
-          .toBuffer()
-        break
-      default:
-        throw new Error(`Formato no soportado: ${format}`)
+    try {
+      switch (format) {
+        case 'webp':
+          outputBuffer = await sharpInstance
+            .webp({ 
+              quality, 
+              effort: 6, // Balance entre calidad y velocidad (0-6, default 4)
+              smartSubsample: true, // Mejor calidad de color
+              nearLossless: false, // Usar lossy para mejor compresión
+              preset: 'photo' // Optimizado para fotografías
+            })
+            .toBuffer()
+          break
+        case 'jpeg':
+          outputBuffer = await sharpInstance
+            .jpeg({ 
+              quality, 
+              progressive: true,
+              optimizeScans: true, // Optimización adicional
+              chromaSubsampling: '4:4:4' // Mejor calidad de color
+            })
+            .toBuffer()
+          break
+        case 'png':
+          outputBuffer = await sharpInstance
+            .png({ 
+              compressionLevel: 9, 
+              progressive: true,
+              palette: true, // Intentar reducir a paleta cuando sea posible
+              effort: 10 // Máximo esfuerzo de compresión
+            })
+            .toBuffer()
+          break
+        default:
+          throw new Error(`Formato no soportado: ${format}`)
+      }
+      
+      console.log('Conversión completada:', {
+        outputSize: outputBuffer.length
+      })
+    } catch (conversionError) {
+      console.error('Error en conversión de imagen:', conversionError)
+      throw new Error(`Error al convertir imagen a ${format}: ${conversionError instanceof Error ? conversionError.message : 'Error desconocido'}`)
     }
 
     // Generar nuevo nombre de archivo con extensión correcta

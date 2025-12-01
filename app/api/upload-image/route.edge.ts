@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadBlogImage } from '@/lib/imageUpload'
+import { supabase } from '@/lib/supabase'
+import { generateStoragePath } from '@/lib/blogImageUtils'
 
+/**
+ * API Route para subir imágenes sin optimización del servidor
+ * Compatible con Netlify Edge Functions y otros entornos serverless
+ * 
+ * La optimización se hace en el cliente antes de enviar
+ */
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
@@ -38,29 +45,44 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Procesando upload de imagen:', {
+    console.log('Subiendo imagen (sin optimización del servidor):', {
       filename: file.name,
       size: file.size,
       type: file.type,
       slug
     })
 
-    // Subir la imagen (esto internamente usa la optimización)
-    const result = await uploadBlogImage(file, slug)
+    // Generar el path de almacenamiento
+    const extension = file.name.split('.').pop() || 'webp'
+    const storagePath = generateStoragePath(slug, extension)
 
-    if (!result.success) {
-      console.error('Error en uploadBlogImage:', result.error)
+    // Subir directamente a Supabase
+    const { error: uploadError } = await supabase.storage
+      .from('blog-images')
+      .upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type
+      })
+
+    if (uploadError) {
+      console.error('Error al subir imagen:', uploadError)
       return NextResponse.json(
-        { error: result.error || 'Error al subir la imagen' },
+        { error: `Error al subir la imagen: ${uploadError.message}` },
         { status: 500 }
       )
     }
 
+    // Obtener la URL pública
+    const { data: publicUrlData } = supabase.storage
+      .from('blog-images')
+      .getPublicUrl(storagePath)
+
     return NextResponse.json({
       success: true,
-      publicUrl: result.publicUrl,
-      path: result.path,
-      optimizationStats: result.optimizationStats
+      publicUrl: publicUrlData.publicUrl,
+      path: storagePath,
+      message: 'Imagen optimizada en el cliente y subida exitosamente'
     })
 
   } catch (error) {
@@ -77,6 +99,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
-// Forzar el uso de Node.js runtime (necesario para Sharp)
-export const runtime = 'nodejs'
