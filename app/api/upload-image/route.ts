@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadBlogImage } from '@/lib/imageUpload'
+import { supabase } from '@/lib/supabase'
+import { generateStoragePath } from '@/lib/blogImageUtils'
 
+/**
+ * API Route para subir imágenes directamente a Supabase
+ * Compatible con Netlify - La optimización se hace en el cliente con Canvas API
+ * 
+ * NOTA: Esta versión NO usa Sharp para evitar problemas en Netlify.
+ * La optimización se realiza en el navegador antes de la subida.
+ */
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
@@ -29,38 +37,57 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validar el tamaño del archivo
-    const maxSize = 8 * 1024 * 1024 // 8MB
+    // Validar el tamaño del archivo (después de optimización del cliente)
+    const maxSize = 10 * 1024 * 1024 // 10MB (generoso porque ya viene optimizado)
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'La imagen no puede superar los 8MB' },
+        { error: 'La imagen no puede superar los 10MB' },
         { status: 400 }
       )
     }
 
-    console.log('Procesando upload de imagen:', {
+    console.log('Subiendo imagen optimizada desde cliente:', {
       filename: file.name,
       size: file.size,
       type: file.type,
       slug
     })
 
-    // Subir la imagen (esto internamente usa la optimización)
-    const result = await uploadBlogImage(file, slug)
+    // Generar el path de almacenamiento
+    const extension = file.name.split('.').pop() || 'webp'
+    const storagePath = generateStoragePath(slug, extension)
 
-    if (!result.success) {
-      console.error('Error en uploadBlogImage:', result.error)
+    console.log('Path de storage:', storagePath)
+
+    // Subir directamente a Supabase (ya viene optimizado del cliente)
+    const { error: uploadError } = await supabase.storage
+      .from('blog-images')
+      .upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type
+      })
+
+    if (uploadError) {
+      console.error('Error al subir imagen a Supabase:', uploadError)
       return NextResponse.json(
-        { error: result.error || 'Error al subir la imagen' },
+        { error: `Error al subir la imagen: ${uploadError.message}` },
         { status: 500 }
       )
     }
 
+    // Obtener la URL pública
+    const { data: publicUrlData } = supabase.storage
+      .from('blog-images')
+      .getPublicUrl(storagePath)
+
+    console.log('Imagen subida exitosamente:', publicUrlData.publicUrl)
+
     return NextResponse.json({
       success: true,
-      publicUrl: result.publicUrl,
-      path: result.path,
-      optimizationStats: result.optimizationStats
+      publicUrl: publicUrlData.publicUrl,
+      path: storagePath,
+      message: 'Imagen optimizada en el cliente y subida exitosamente'
     })
 
   } catch (error) {
@@ -78,8 +105,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Configuración del route segment según documentación de Next.js
-// https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
-export const runtime = 'nodejs' // Necesario para Sharp
-export const dynamic = 'force-dynamic' // Siempre ejecutar en request time
-export const maxDuration = 60 // Máximo 60 segundos (límite de Netlify Functions)
+// Configuración para Netlify Functions
+export const dynamic = 'force-dynamic'
+export const maxDuration = 60
