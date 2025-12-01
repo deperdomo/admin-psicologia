@@ -78,5 +78,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Forzar el uso de Node.js runtime (necesario para Sharp)
-export const runtime = 'nodejs'
+// Configuración del route segment según documentación de Next.js
+// https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
+export const runtime = 'nodejs' // Necesario para Sharp
+export const dynamic = 'force-dynamic' // Siempre ejecutar en request time
+export const maxDuration = 60 // Máximo 60 segundos (límite de Netlify Functions)

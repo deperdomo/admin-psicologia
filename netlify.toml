@@ -2,23 +2,12 @@
   command = "npm run build"
   publish = ".next"
 
+# Plugin oficial de Next.js para Netlify (maneja todo automáticamente)
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Configuración de funciones serverless
 [functions]
-  # Permitir Node.js 20 para funciones que necesitan sharp
+  # Sharp debe ser externo (no se empaqueta con esbuild)
+  external_node_modules = ["sharp"]
   node_bundler = "esbuild"
-  included_files = ["node_modules/sharp/**/*"]
-
-# Forzar que la API route use Netlify Functions en lugar de Edge Functions
-[[redirects]]
-  from = "/api/upload-image"
-  to = "/.netlify/functions/___netlify-handler"
-  status = 200
-  force = true
-
-# Configuración para Next.js en Netlify
-[dev]
-  command = "npm run dev"
-  port = 3000
-  targetPort = 3000
