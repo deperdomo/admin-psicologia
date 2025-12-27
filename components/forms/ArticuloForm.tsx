@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Save, FileText, User, Settings, Tag, BookOpen, Globe, List } from 'lucide-react'
@@ -22,8 +22,11 @@ import { BibliographyInput } from './BibliographyInput'
 import { RelatedArticlesInput } from './RelatedArticlesInput'
 import { ProfessionalRecommendationsInput } from './ProfessionalRecommendationsInput'
 import { RecommendedProductsInput } from './RecommendedProductsInput'
+import { FormErrorSummary } from './FormErrorSummary'
+import { FormProgress } from './FormProgress'
 import { blogArticleSchema, BLOG_CATEGORY_LABELS, BLOG_COMPLEXITY_LABELS, BLOG_STATUS_LABELS } from '@/lib/validations'
 import { generateBlogImageUrl } from '@/lib/blogImageUtils'
+import { useUnsavedChanges } from '@/lib/hooks/useUnsavedChanges'
 import type { BlogArticleFormData } from '@/types/database'
 
 interface ArticuloFormProps {
@@ -32,6 +35,8 @@ interface ArticuloFormProps {
   submitLabel?: string
   disabled?: boolean
   isEditing?: boolean
+  apiError?: string | null
+  onClearApiError?: () => void
 }
 
 export default function ArticuloForm({
@@ -39,10 +44,13 @@ export default function ArticuloForm({
   onSubmit,
   submitLabel = 'Crear Artículo',
   disabled = false,
-  isEditing = false
+  isEditing = false,
+  apiError = null,
+  onClearApiError
 }: ArticuloFormProps) {
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [formSubmitted, setFormSubmitted] = useState(false)
 
   // Datos fijos del autor
   const AUTHOR_DATA = {
@@ -117,9 +125,37 @@ export default function ArticuloForm({
     }
   })
 
+  // Hook para advertir al usuario si intenta salir con cambios sin guardar
+  useUnsavedChanges(form.formState.isDirty, !formSubmitted)
+
   const handleSubmit = async (data: BlogArticleFormData) => {
+    setFormSubmitted(true) // Desactivar advertencia de cambios sin guardar
     await onSubmit(data, selectedImage || undefined)
   }
+
+  // Función para limpiar errores del formulario
+  const handleClearFormErrors = useCallback(() => {
+    form.clearErrors()
+  }, [form])
+
+  // Scroll al primer error cuando hay errores de validación
+  useEffect(() => {
+    const errors = form.formState.errors
+    const errorKeys = Object.keys(errors)
+    
+    if (errorKeys.length > 0) {
+      const firstErrorKey = errorKeys[0]
+      // Manejar errores anidados como psychological_analysis.title
+      const fieldId = `field-${firstErrorKey.replace(/\./g, '-')}`
+      const element = document.getElementById(fieldId)
+      
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 100)
+      }
+    }
+  }, [form.formState.errors, form.formState.submitCount])
 
   // Auto-generar slug basado en el título
   const generateSlug = (title: string) => {
@@ -190,6 +226,17 @@ export default function ArticuloForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
 
+          {/* Indicador de progreso del formulario */}
+          <FormProgress watch={form.watch} />
+
+          {/* Resumen de errores de validación y API */}
+          <FormErrorSummary
+            errors={form.formState.errors}
+            apiError={apiError}
+            onClearErrors={handleClearFormErrors}
+            onClearApiError={onClearApiError}
+          />
+
           {/* Información Básica */}
           <Card>
             <CardHeader>
@@ -205,7 +252,7 @@ export default function ArticuloForm({
                     control={form.control}
                     name="title"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem id="field-title">
                         <FormLabel>Título del Artículo *</FormLabel>
                         <FormControl>
                           <InputWithPaste
@@ -251,7 +298,7 @@ export default function ArticuloForm({
                     control={form.control}
                     name="slug"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem id="field-slug">
                         <FormLabel>Slug URL *</FormLabel>
                         <FormControl>
                           <InputWithPaste
@@ -395,7 +442,7 @@ export default function ArticuloForm({
                 control={form.control}
                 name="introduction"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem id="field-introduction">
                     <FormLabel>Introducción *</FormLabel>
                     <FormControl>
                       <TextareaWithPaste
@@ -527,7 +574,7 @@ export default function ArticuloForm({
                     control={form.control}
                     name="psychological_analysis.title"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem id="field-psychological_analysis-title">
                         <FormLabel>Título del Análisis *</FormLabel>
                         <FormControl>
                           <InputWithPaste
@@ -544,7 +591,7 @@ export default function ArticuloForm({
                     control={form.control}
                     name="psychological_analysis.content"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem id="field-psychological_analysis-content">
                         <FormLabel>Contenido del Análisis *</FormLabel>
                         <FormControl>
                           <TextareaWithPaste
@@ -569,7 +616,7 @@ export default function ArticuloForm({
                     control={form.control}
                     name="practical_recommendations.title"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem id="field-practical_recommendations-title">
                         <FormLabel>Título de las Recomendaciones *</FormLabel>
                         <FormControl>
                           <InputWithPaste
@@ -586,7 +633,7 @@ export default function ArticuloForm({
                     control={form.control}
                     name="practical_recommendations.content"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem id="field-practical_recommendations-content">
                         <FormLabel>Contenido de las Recomendaciones *</FormLabel>
                         <FormControl>
                           <TextareaWithPaste
@@ -832,13 +879,17 @@ export default function ArticuloForm({
                     <FormLabel>Meta Descripción</FormLabel>
                     <FormControl>
                       <TextareaWithPaste
-                        placeholder="Descripción breve para motores de búsqueda (máx 180 caracteres)"
+                        placeholder="Descripción breve para motores de búsqueda (máx 160 caracteres)"
                         className="min-h-[80px]"
                         {...field}
                         disabled={disabled}
                       />
                     </FormControl>
-                    <p className="text-sm text-muted-foreground">
+                    <p className={`text-sm ${
+                      (field.value?.length || 0) > 160 
+                        ? 'text-destructive font-medium' 
+                        : 'text-muted-foreground'
+                    }`}>
                       {field.value?.length || 0}/160 caracteres
                     </p>
                     <FormMessage />
@@ -902,7 +953,7 @@ export default function ArticuloForm({
                   control={form.control}
                   name="author_name"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem id="field-author_name">
                       <FormLabel>Nombre del Autor *</FormLabel>
                       <FormControl>
                         <Select

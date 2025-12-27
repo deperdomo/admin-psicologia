@@ -15,12 +15,14 @@ export default function NuevoArticuloClient() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
 
   if (loading) return <div>Cargando...</div>;
   if (!user) return null;
 
   const handleSubmit = async (data: BlogArticleFormData, imageFile?: File) => {
     setIsLoading(true)
+    setApiError(null) // Limpiar error anterior
     try {
       console.log('Datos a enviar:', data)
       console.log('Related articles:', data.related_articles)
@@ -75,10 +77,16 @@ export default function NuevoArticuloClient() {
 
     } catch (error) {
       console.error('Error al crear el artículo:', error)
-      alert(error instanceof Error ? error.message : 'Error al crear el artículo')
+      setApiError(error instanceof Error ? error.message : 'Error al crear el artículo. Por favor, revisa los datos e intenta de nuevo.')
+      // Hacer scroll al inicio para mostrar el error
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleClearApiError = () => {
+    setApiError(null)
   }
 
   const handleSuccessClose = () => {
@@ -110,6 +118,8 @@ export default function NuevoArticuloClient() {
         onSubmit={handleSubmit}
         submitLabel={isLoading ? 'Creando...' : 'Crear Artículo'}
         disabled={isLoading}
+        apiError={apiError}
+        onClearApiError={handleClearApiError}
       />
 
       <SuccessModal

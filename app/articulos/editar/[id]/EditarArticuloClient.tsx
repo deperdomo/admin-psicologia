@@ -21,6 +21,7 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
 
   // Cargar el artículo
   useEffect(() => {
@@ -37,8 +38,8 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
         setArticulo(data)
       } catch (error) {
         console.error('Error:', error)
-        alert('Error al cargar el artículo')
-        router.push('/articulos/lista')
+        setApiError('Error al cargar el artículo. Redirigiendo a la lista...')
+        setTimeout(() => router.push('/articulos/lista'), 2000)
       } finally {
         setIsLoading(false)
       }
@@ -49,6 +50,7 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
 
   const handleSubmit = async (data: BlogArticleFormData, imageFile?: File) => {
     setIsSubmitting(true)
+    setApiError(null) // Limpiar error anterior
     try {
       // Si hay una nueva imagen, subirla primero
       if (imageFile && data.slug) {
@@ -79,10 +81,16 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
       
     } catch (error) {
       console.error('Error al actualizar el artículo:', error)
-      alert(error instanceof Error ? error.message : 'Error al actualizar el artículo')
+      setApiError(error instanceof Error ? error.message : 'Error al actualizar el artículo. Por favor, revisa los datos e intenta de nuevo.')
+      // Hacer scroll al inicio para mostrar el error
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleClearApiError = () => {
+    setApiError(null)
   }
 
   const handleSuccessClose = () => {
@@ -200,6 +208,8 @@ export default function EditarArticuloClient({ id }: EditarArticuloClientProps) 
         submitLabel={isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
         disabled={isSubmitting}
         isEditing={true}
+        apiError={apiError}
+        onClearApiError={handleClearApiError}
       />
 
       <SuccessModal

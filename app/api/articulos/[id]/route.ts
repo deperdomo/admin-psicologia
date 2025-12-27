@@ -1,6 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getArticuloById, updateArticulo, deleteArticulo, checkSlugExists } from '@/lib/articulos'
+import { blogArticleSchema } from '@/lib/validations'
 import type { BlogArticleFormData } from '@/types/database'
+
+// Función helper para formatear errores de Zod en mensajes legibles
+function formatZodErrors(errors: { path: (string | number)[]; message: string }[]): string {
+  const fieldLabels: Record<string, string> = {
+    title: 'Título',
+    slug: 'Slug URL',
+    introduction: 'Introducción',
+    'psychological_analysis': 'Análisis psicológico',
+    'psychological_analysis.title': 'Título del análisis psicológico',
+    'psychological_analysis.content': 'Contenido del análisis psicológico',
+    'practical_recommendations': 'Recomendaciones prácticas',
+    'practical_recommendations.title': 'Título de recomendaciones prácticas',
+    'practical_recommendations.content': 'Contenido de recomendaciones prácticas',
+    author_name: 'Nombre del autor',
+    author_email: 'Email del autor',
+    canonical_url: 'URL canónica',
+  }
+
+  const formattedErrors = errors.map(err => {
+    const path = err.path.join('.')
+    const label = fieldLabels[path] || path
+    return `• ${label}: ${err.message}`
+  })
+
+  return `Errores de validación:\n${formattedErrors.join('\n')}`
+}
 
 export async function GET(
   request: NextRequest,
@@ -33,26 +60,25 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const data: Partial<BlogArticleFormData> = await request.json()
+    const rawData = await request.json()
 
     // Log para debug
-    console.log('Datos recibidos en PUT API:', data)
-    console.log('Related articles recibidos en PUT:', data.related_articles)
+    console.log('Datos recibidos en PUT API:', rawData)
+    console.log('Related articles recibidos en PUT:', rawData.related_articles)
 
-    // Validaciones básicas si se están actualizando campos obligatorios
-    if (data.title !== undefined && !data.title) {
+    // Validar con Zod schema
+    const validationResult = blogArticleSchema.safeParse(rawData)
+    
+    if (!validationResult.success) {
+      const errorMessage = formatZodErrors(validationResult.error.errors)
+      console.log('Errores de validación en PUT:', validationResult.error.errors)
       return NextResponse.json(
-        { error: 'El título es requerido' },
+        { error: errorMessage },
         { status: 400 }
       )
     }
 
-    if (data.slug !== undefined && !data.slug) {
-      return NextResponse.json(
-        { error: 'El slug es requerido' },
-        { status: 400 }
-      )
-    }
+    const data = validationResult.data as BlogArticleFormData
 
     // Verificar si el slug ya existe (excluyendo el artículo actual)
     if (data.slug) {
@@ -63,13 +89,6 @@ export async function PUT(
           { status: 400 }
         )
       }
-    }
-
-    if (data.author_name !== undefined && !data.author_name) {
-      return NextResponse.json(
-        { error: 'El nombre del autor es requerido' },
-        { status: 400 }
-      )
     }
 
     const articulo = await updateArticulo(id, data)

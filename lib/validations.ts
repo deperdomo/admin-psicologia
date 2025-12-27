@@ -189,7 +189,7 @@ export const blogArticleSchema = z.object({
   })).optional(),
   
   // Meta información
-  meta_description: z.string().optional(),
+  meta_description: z.string().max(160, "La meta descripción no puede exceder 160 caracteres").optional(),
   meta_keywords: z.string().optional(),
   canonical_url: z.string().url("URL canónica debe ser válida").optional(),
   schema_markup: z.any().optional(),
