@@ -195,7 +195,7 @@ export const blogArticleSchema = z.object({
   schema_markup: z.any().optional(),
   
   // Categorización
-  category: z.enum(['desarrollo', 'comportamiento', 'emociones', 'educacion', 'familia', 'trastornos', 'otros']).optional(),
+  category: z.enum(['comportamiento', 'emociones', 'familia', 'desarrollo', 'aprendizaje', 'salud']).optional(),
   subcategory: z.string().optional(),
   tags: z.array(z.string()).optional(),
   target_audience: z.string().optional(),
@@ -227,13 +227,12 @@ export type BlogArticleFormSchema = z.infer<typeof blogArticleSchema>
 
 // Constantes para los labels de los enums del blog
 export const BLOG_CATEGORY_LABELS = {
-  desarrollo: 'Desarrollo Infantil',
   comportamiento: 'Comportamiento',
   emociones: 'Emociones',
-  educacion: 'Educación',
   familia: 'Familia',
-  trastornos: 'Trastornos',
-  otros: 'Otros'
+  desarrollo: 'Desarrollo',
+  aprendizaje: 'Aprendizaje',
+  salud: 'Salud'
 } as const
 
 export const BLOG_COMPLEXITY_LABELS = {

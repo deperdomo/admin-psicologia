@@ -188,6 +188,7 @@ export function BibliographyInput({ value, onChange, disabled }: BibliographyInp
                   <SelectItem value="book">Libro</SelectItem>
                   <SelectItem value="chapter">Capítulo de libro</SelectItem>
                   <SelectItem value="report">Reporte</SelectItem>
+                  <SelectItem value="book">Informe</SelectItem>
                   <SelectItem value="website">Sitio web</SelectItem>
                 </SelectContent>
               </Select>
